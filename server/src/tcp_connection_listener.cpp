@@ -18,7 +18,10 @@ namespace Enflopio
     void TCPConnectionListener::StopListening()
     {
         m_io_service.stop();
-        m_listen_thread.join();
+        if (m_listen_thread.joinable())
+        {
+            m_listen_thread.join();
+        }
     }
 
     void TCPConnectionListener::StartAccept()

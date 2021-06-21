@@ -3,6 +3,7 @@
 #include <chrono>
 #include "connection.hpp"
 #include "tcp_connection_listener.hpp"
+#include "websocket_connection_listener.hpp"
 
 namespace Enflopio
 {
@@ -43,5 +44,6 @@ namespace Enflopio
         std::vector<Connection::Ptr> m_connections;
         std::mutex m_connections_mutex;
         TCPConnectionListener m_tcp_listener;
+        WebSocketConnectionListener m_websocket_listener;
     };
 }

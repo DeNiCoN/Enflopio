@@ -10,8 +10,10 @@ add_executable(server
 
 find_package(uwebsockets)
 find_package(Boost COMPONENTS REQUIRED system)
+find_package(spdlog)
 
 target_link_libraries(server
   uwebsockets::uwebsockets
   Boost::Boost
+  spdlog::spdlog
   )

@@ -1,8 +1,3 @@
-// emcc main.cpp -o index.html -s USE_WEBGL2=1 -s USE_GLFW=3 -s WASM=1 -std=c++1z
-
-// base:  https://www.glfw.org/docs/latest/quick.html#quick_example
-// ref: https://gist.github.com/SuperV1234/5c5ad838fe5fe1bf54f9
-
 #include <functional>
 #include <iostream>
 #include <vector>
@@ -17,13 +12,17 @@
 #include "linmath.h"
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <errno.h>
+#include <thread>
+#include <cassert>
+#include <malloc.h>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 static const struct
 {
@@ -69,6 +68,44 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 std::function<void()> loop;
 void main_loop() { loop(); }
 
+typedef struct {
+  char *buffer;
+  int length;
+} msg_t;
+
+int do_msg_read(int sockfd, msg_t *msg, int offset, int length, struct sockaddr *addr, socklen_t *addrlen) {
+  int res;
+
+  if (!msg->length) {
+    // read the message length
+    res = recvfrom(sockfd, &msg->length, sizeof(int), 0, addr, addrlen);
+    if (res == -1) {
+      assert(errno == EAGAIN);
+      return res;
+    } else if (res == 0) {
+      return 0;
+    }
+
+    printf("do_msg_read: allocating %d bytes for message\n", msg->length);
+
+    msg->buffer = (char*) malloc(msg->length);
+  }
+  // read the actual message
+  int max = msg->length - offset;
+  if (length && max > length) {
+    max = length;
+  }
+  res = recvfrom(sockfd, msg->buffer + offset, max, 0, addr, addrlen);
+  if (res == -1) {
+    assert(errno == EAGAIN);
+    return res;
+  }
+
+  printf("do_msg_read: read %d bytes\n", res);
+
+  return res;
+}
+
 void check_error(GLuint shader)
 {
     GLint result;
@@ -100,9 +137,9 @@ int main(void)
         std::cout << "Cannot create socket\n";
       return EXIT_FAILURE;
     }
+    fcntl(SocketFD, F_SETFL, O_NONBLOCK);
 
     memset(&sa, 0, sizeof sa);
-
     sa.sin_family = AF_INET;
 
 #ifdef __EMSCRIPTEN__
@@ -111,16 +148,26 @@ int main(void)
     sa.sin_port = htons(25325);
 #endif
 
-    res = inet_pton(AF_INET, "93.74.188.74", &sa.sin_addr);
+    std::cout << "Connecting to port " << sa.sin_port;
+    if (inet_pton(AF_INET, "93.74.188.74", &sa.sin_addr) != 1)
+    {
+        std::cout << "inte_pton failed" << std::endl;
+    }
 
-    if (connect(SocketFD, (struct sockaddr *)&sa, sizeof sa) == -1) {
+    if (connect(SocketFD, (struct sockaddr *)&sa, sizeof sa) == -1 && errno != EINPROGRESS) {
       std::cout << "connect failed\n";
       close(SocketFD);
       return EXIT_FAILURE;
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(200)); //good design
 
     char buf[6];
-    recv(SocketFD, buf, sizeof(buf), 0);
+
+    msg_t msg;
+    msg.buffer = buf;
+    msg.length = 6;
+    while (do_msg_read(SocketFD, &msg, 0, 6, NULL, NULL) == -1 && errno == EAGAIN);
+
     std::cout << "Server says: " << buf << "\n";
     std::cout << "Disconnecting\n";
     close(SocketFD);

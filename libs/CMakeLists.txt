@@ -8,24 +8,44 @@ endif()
 
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-conan_cmake_configure(REQUIRES
-  glfw/[>=3.3.4]
-  glad/[>=0.1.34]
-  glm/[>=0.9.9]
-  uwebsockets/[>=19.2.0]
-  boost/[>=1.76.0]
+if (EMSCRIPTEN)
+  conan_cmake_configure(REQUIRES
+    glm/[>=0.9.9]
 
-  OPTIONS
-  glad:gl_profile=core
-  glad:spec=gl
-  glad:gl_version=4.6
-  glad:spec=gl
-  glad:no_loader=False
+    BUILD_REQUIRES
+    emsdk_installer/1.38.29@bincrafters/stable
 
-  GENERATORS
-  cmake_find_package
-  )
+    GENERATORS
+    cmake_find_package
+    )
 
+  conan_cmake_autodetect(settings)
+
+  list(APPEND settings "os=Emscripten" "arch=wasm")
+else()
+  conan_cmake_configure(REQUIRES
+    glfw/[>=3.3.4]
+    glad/[>=0.1.34]
+    glm/[>=0.9.9]
+    uwebsockets/[>=19.2.0]
+    boost/[>=1.76.0]
+    spdlog/[>=1.8.5]
+
+    OPTIONS
+    glad:gl_profile=core
+    glad:spec=gl
+    glad:gles2_version=3.2
+    glad:no_loader=False
+
+    GENERATORS
+    cmake_find_package
+    )
+
+  conan_cmake_autodetect(settings)
+endif()
+
+message(${settings})
 conan_cmake_install(PATH_OR_REFERENCE .
   BUILD missing
-  REMOTE conan-center)
+  REMOTE conan-center
+  SETTINGS ${settings})

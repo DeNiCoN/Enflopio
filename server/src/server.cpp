@@ -7,7 +7,8 @@ using namespace std;
 namespace Enflopio
 {
     Server::Server(const Options& options)
-        : m_tcp_listener(options.tcp_port, *this)
+        : m_tcp_listener(options.tcp_port, *this),
+          m_websocket_listener(options.websocket_port, *this)
     {
 
     }
@@ -28,10 +29,12 @@ namespace Enflopio
     void Server::StartListening()
     {
         m_tcp_listener.StartListening();
+        m_websocket_listener.StartListening();
     }
 
     void Server::StopListening()
     {
+        m_websocket_listener.StopListening();
         m_tcp_listener.StopListening();
     }
 
@@ -66,9 +69,9 @@ namespace Enflopio
 
     void Server::NewConnection(Connection::Ptr connection)
     {
-        static char buf[6] = "Hello";
+        static char buf[] = "Hello";
         std::lock_guard lock(m_connections_mutex);
-        buf[4]++;
+        buf[5]++;
         connection->Send(buf);
         connection->Close();
         m_connections.push_back(std::move(connection));

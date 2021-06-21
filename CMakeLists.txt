@@ -4,6 +4,9 @@ project(Enflopio)
 
 set(CMAKE_CXX_STANDARD 20)
 
+set(CMAKE_CXX_COMPILER_VERSION 12.0.0)
+message(${CMAKE_CXX_COMPILER_VERSION})
+
 add_subdirectory(libs)
 set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/libs)
 
