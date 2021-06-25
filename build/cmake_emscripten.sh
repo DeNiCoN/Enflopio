@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 cd "$(dirname "$0")"
-emcmake cmake -B Emscripten -S .. -DCMAKE_BUILD_TYPE=Release
+emcmake cmake -B Emscripten -S .. -DCMAKE_BUILD_TYPE=Release "$@"

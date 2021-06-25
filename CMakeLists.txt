@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.16)
 
 project(Enflopio)
 
@@ -12,9 +12,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/libs)
 
 #add_subdirectory(core)
 add_subdirectory(client)
-add_subdirectory(server)
 
-enable_testing()
-#if(BUILD_TESTING)
-#  add_subdirectory(tests)
-#endif()
+if (EMSCRIPTEN)
+  add_subdirectory(backend)
+else()
+  add_subdirectory(server)
+
+  enable_testing()
+  #if(BUILD_TESTING)
+  #  add_subdirectory(tests)
+  #endif()
+endif()

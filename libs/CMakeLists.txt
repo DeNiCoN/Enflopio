@@ -44,7 +44,6 @@ else()
   conan_cmake_autodetect(settings)
 endif()
 
-message(${settings})
 conan_cmake_install(PATH_OR_REFERENCE .
   BUILD missing
   REMOTE conan-center

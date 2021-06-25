@@ -126,7 +126,7 @@ void check_error(GLuint shader)
 int main(void)
 {
     std::cout << "Hello biggers\n";
-    std::cout << "Connecting to server...\n";
+    /*std::cout << "Connecting to server...\n";
 
     struct sockaddr_in sa;
     int res;
@@ -171,7 +171,7 @@ int main(void)
     std::cout << "Server says: " << buf << "\n";
     std::cout << "Disconnecting\n";
     close(SocketFD);
-
+    */
     GLint mvp_location, vpos_location, vcol_location;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
