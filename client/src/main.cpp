@@ -24,6 +24,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "test.hpp"
+
 static const struct
 {
     float x, y;
@@ -126,6 +128,8 @@ void check_error(GLuint shader)
 int main(void)
 {
     std::cout << "Hello biggers\n";
+
+    Enflopio::test();
     /*std::cout << "Connecting to server...\n";
 
     struct sockaddr_in sa;

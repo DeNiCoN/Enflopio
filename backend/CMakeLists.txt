@@ -1,6 +1,7 @@
+if (backend_ENABLED)
+  include(CPack)
 
-include(CPack)
-
-install(TARGETS client
-  DESTINATION .
-  )
+  install(TARGETS client
+    DESTINATION .
+    )
+endif()

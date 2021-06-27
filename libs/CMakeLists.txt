@@ -8,43 +8,72 @@ endif()
 
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-if (EMSCRIPTEN)
-  conan_cmake_configure(REQUIRES
-    glm/[>=0.9.9]
+set(packages "")
+set(build_requires "")
+set(options "")
+set(env "")
+conan_cmake_autodetect(settings)
 
-    BUILD_REQUIRES
-    emsdk_installer/1.38.29@bincrafters/stable
+# core
+list(APPEND packages
+  glm/[>=0.9.9]
+  spdlog/[>=1.8.5]
+  )
 
-    GENERATORS
-    cmake_find_package
-    )
+list(APPEND options
+  spdlog:header_only=True
+  fmt:header_only=True
+  )
 
-  conan_cmake_autodetect(settings)
+if (client_ENABLED)
+  if (EMSCRIPTEN)
+    list(APPEND build_requires
+      emsdk_installer/1.38.29@bincrafters/stable
+      )
 
-  list(APPEND settings "os=Emscripten" "arch=wasm")
-else()
-  conan_cmake_configure(REQUIRES
-    glfw/[>=3.3.4]
-    glad/[>=0.1.34]
-    glm/[>=0.9.9]
+    list(APPEND settings "os=Emscripten" "arch=wasm")
+
+    list(APPEND env
+      CC=/usr/bin/clang
+      CXX=/usr/bin/clang++
+      )
+
+    list(APPEND options
+      )
+  else()
+    list(APPEND packages
+      glfw/[>=3.3.4]
+      glad/[>=0.1.34]
+      boost/[>=1.76.0]
+      )
+
+    list(APPEND options
+      glad:gl_profile=core
+      glad:spec=gl
+      glad:gles2_version=3.2
+      glad:no_loader=False
+      )
+  endif()
+endif()
+
+if (server_ENABLED)
+  list(APPEND packages
     uwebsockets/[>=19.2.0]
     boost/[>=1.76.0]
     spdlog/[>=1.8.5]
-
-    OPTIONS
-    glad:gl_profile=core
-    glad:spec=gl
-    glad:gles2_version=3.2
-    glad:no_loader=False
-
-    GENERATORS
-    cmake_find_package
     )
-
-  conan_cmake_autodetect(settings)
 endif()
+
+conan_cmake_configure(
+  REQUIRES ${packages}
+  BUILD_REQUIRES ${build_requires}
+  OPTIONS ${options}
+  GENERATORS cmake_find_package
+  )
 
 conan_cmake_install(PATH_OR_REFERENCE .
   BUILD missing
   REMOTE conan-center
-  SETTINGS ${settings})
+  SETTINGS ${settings}
+  ENV ${env}
+  )
