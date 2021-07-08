@@ -18,6 +18,7 @@ conan_cmake_autodetect(settings)
 list(APPEND packages
   glm/[>=0.9.9]
   spdlog/[>=1.8.5]
+  cereal/[>=1.3.0]
   )
 
 list(APPEND options

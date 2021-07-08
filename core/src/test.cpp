@@ -2,8 +2,8 @@
 
 namespace Enflopio
 {
-  void test()
-  {
-    std::cout << "Hello, World!\n";
-  }
+    void test()
+    {
+        std::cout << "Hello, World!\n";
+    }
 }
