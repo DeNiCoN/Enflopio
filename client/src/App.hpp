@@ -20,7 +20,7 @@ namespace Enflopio
         void Terminate() final override;
     private:
         World m_world;
-        //NetworkManager m_network;
+        NetworkManager m_network;
         World::PlayerPtr m_current_player;
 
         GLFWwindow* m_window;

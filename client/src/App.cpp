@@ -55,7 +55,7 @@ namespace Enflopio
 #endif
         glfwSwapInterval(1);
 
-        //NetworkManager::Init();
+        m_network.Init();
 
         m_current_player = std::make_shared<World::Player>();
         m_current_player->position = {0, 0};
@@ -83,6 +83,11 @@ namespace Enflopio
     void App::Update(double delta)
     {
         CircleBatch::Instance().Clear();
+
+        while (m_network.HasNextMessage())
+        {
+            ClientProtocol::m_network.NextMessage();
+        }
 
         m_input_manager.Update();
         auto current_controls = m_input_manager.GetCurrent();
