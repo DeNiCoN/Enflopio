@@ -4,22 +4,24 @@
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 #include "CircleBatch.hpp"
+#include "Messages.hpp"
 
 namespace Enflopio
 {
+    App& App::Instance()
+    {
+        static App instance;
+        return instance;
+    }
+
     static void error_callback(int error, const char *description)
     {
         spdlog::error("Error: {}\n", description);
     }
 
-    //TODO Do something about this
-    App* app_instance;
     void window_size_callback(GLFWwindow* window, int width, int height)
     {
-        app_instance->m_camera.SetBorders(width, height);
-        app_instance->m_camera.SetScale(width * 0.05);
-        CircleBatch::Instance().SetProjection(app_instance->m_camera.GetProjection());
-        glViewport(0, 0, width, height);
+        App::Instance().Resize(width, height);
     }
 
     void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -28,10 +30,16 @@ namespace Enflopio
             glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 
+    void App::Resize(int width, int height)
+    {
+        m_camera.SetBorders(width, height);
+        m_camera.SetScale(width * 0.05);
+        CircleBatch::Instance().SetProjection(m_camera.GetProjection());
+        glViewport(0, 0, width, height);
+    }
+
     void App::Init()
     {
-        app_instance = this;
-
         glfwSetErrorCallback(error_callback);
         if (!glfwInit())
             exit(EXIT_FAILURE);
@@ -55,29 +63,18 @@ namespace Enflopio
 #endif
         glfwSwapInterval(1);
 
-        m_network.Init();
-
-        m_current_player = std::make_shared<World::Player>();
-        m_current_player->position = {0, 0};
-        m_current_player->velocity = {0, 0};
-        m_world.AddPlayer(m_current_player);
-
-        for (int i = 0; i < 100; i++)
-        {
-            m_world.AddCircle({{rand() % 100 - 50, rand() % 100 - 50}});
-
-        }
-
         int width, height;
         glfwGetFramebufferSize(m_window, &width, &height);
-        m_camera.SetBorders(width, height);
-        CircleBatch::Instance().SetProjection(app_instance->m_camera.GetProjection());
+        Resize(width, height);
 
         // One unit is 5% of width: (1*scale) / width = 0.05;
         m_camera.SetScale(width * 0.05);
-        m_camera.SetPosition(m_current_player->position);
+        m_camera.SetPosition(m_world.GetPlayer(m_current_player_id).position);
         glViewport(0, 0, width, height);
         glClearColor(0, 0, 0, 1);
+
+        m_network.Init();
+        m_network.Send(ServerMessages::Hello());
     }
 
     void App::Update(double delta)
@@ -86,24 +83,26 @@ namespace Enflopio
 
         while (m_network.HasNextMessage())
         {
-            ClientProtocol::m_network.NextMessage();
+            auto message_ptr = ClientMessages::Deserialize(m_network.NextMessage());
+            message_ptr->Visit(m_protocol);
         }
 
         m_input_manager.Update();
         auto current_controls = m_input_manager.GetCurrent();
-        m_current_player->SetControls(current_controls);
+        m_world.GetPlayer(m_current_player_id).SetControls(current_controls);
+
+        m_network_input.NewControls(current_controls);
 
         m_world.Update(delta);
 
-        m_camera.Move(m_current_player->position);
-
+        m_camera.Move(m_world.GetPlayer(m_current_player_id).position);
         m_camera.Update(delta);
 
         for (const auto& circle : m_world.GetCircles())
             CircleBatch::Instance().Add(circle);
 
         for (const auto& player : m_world.GetPlayers())
-            CircleBatch::Instance().Add(*player);
+            CircleBatch::Instance().Add(player.second);
     }
 
     bool App::ShouldStop()

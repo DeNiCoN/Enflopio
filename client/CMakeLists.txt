@@ -23,7 +23,6 @@ if (client_ENABLED)
   else()
     find_package(glfw3)
     find_package(glad)
-    find_package(glm)
     find_package(Boost COMPONENTS REQUIRED system)
 
     target_link_libraries(client

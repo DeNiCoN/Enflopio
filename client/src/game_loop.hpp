@@ -7,7 +7,7 @@ namespace Enflopio
     {
     public:
         void Run();
-        ~GameLoop() = default;
+        virtual ~GameLoop() = default;
     protected:
         virtual void Init() = 0;
         virtual void Update(double delta) = 0;

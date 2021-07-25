@@ -17,6 +17,11 @@ namespace Enflopio
         {
         }
 
+        ~TCPConnectionListener()
+        {
+            StopListening();
+        }
+
         void StartListening();
         void StopListening();
     private:

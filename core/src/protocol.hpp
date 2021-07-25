@@ -17,12 +17,13 @@ namespace Enflopio
 
     class ServerProtocol
     {
-
+    private:
+        virtual void Handle(const ServerMessages::Hello& msg) = 0;
     };
 
     class ClientProtocol
     {
-
+    private:
+        virtual void Handle(const ClientMessages::Hello& msg) = 0;
     };
-
 }

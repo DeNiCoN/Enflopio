@@ -2,6 +2,7 @@
 #include "World.hpp"
 #include "ControlsState.hpp"
 #include <GLFW/glfw3.h>
+#include "NetworkManager.hpp"
 
 namespace Enflopio
 {
@@ -15,6 +16,7 @@ namespace Enflopio
             m_window = window;
         }
 
+        void SendControls(NetworkManager& network);
     private:
         GLFWwindow* m_window;
     };

@@ -9,6 +9,10 @@ namespace Enflopio
     {
     public:
         WebSocketConnectionListener(std::uint16_t port, Server& server);
+        ~WebSocketConnectionListener()
+        {
+            StopListening();
+        }
         void StartListening();
         void StopListening();
     private:

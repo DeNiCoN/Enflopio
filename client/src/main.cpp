@@ -20,10 +20,6 @@
 #include "World.hpp"
 #include "App.hpp"
 
-
-std::function<void()> loop;
-void main_loop() { loop(); }
-
 typedef struct {
   char *buffer;
   int length;
@@ -34,8 +30,7 @@ using namespace Enflopio;
 int main(void)
 {
     spdlog::set_level(spdlog::level::debug);
-    App app;
-    app.Run();
+    App::Instance().Run();
 
     /*std::cout << "Connecting to server...\n";
 

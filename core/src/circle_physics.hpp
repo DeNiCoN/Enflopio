@@ -19,7 +19,7 @@ namespace Enflopio
         };
         using Circles = std::vector<Circle>;
 
-        void Proccess(Circles& dynamic_circles, const std::vector<Circle*>& static_circles, double delta)
+        void Proccess(Circles dynamic_circles, Circles static_circles, double delta)
         {
             for (auto& circle : dynamic_circles)
             {
@@ -28,9 +28,9 @@ namespace Enflopio
                 circle.position += v_half*static_cast<float>(delta);
 
                 glm::vec2 accel = {0, 0};
-                for (auto* s : static_circles)
+                for (auto s : static_circles)
                 {
-                    auto dif = s->position - circle.position;
+                    auto dif = s.position - circle.position;
                     accel += 50.f * glm::normalize(dif) * (1.f/glm::length(dif));
                 }
                 circle.acceleration = accel;
@@ -39,9 +39,11 @@ namespace Enflopio
 
             ResolveCollisions(dynamic_circles, static_circles, delta);
 
+            m_dynamic_circles = std::move(dynamic_circles);
+            m_static_circles = std::move(static_circles);
         }
 
-        void ResolveCollisions(Circles& dynamic_circles, const std::vector<Circle*>& static_circles, double delta)
+        void ResolveCollisions(Circles& dynamic_circles, Circles& static_circles, double delta)
         {
 //            for (int i = 0; i < dynamic_circles.size(); i++)
 //            {
@@ -65,15 +67,25 @@ namespace Enflopio
 
                 for (auto& circle2 : static_circles)
                 {
-                    auto dif = circle1.position - circle2->position;
+                    auto dif = circle1.position - circle2.position;
                     float length = glm::length(dif);
-                    if (length < (circle1.radius + circle2->radius)/2.f)
+                    if (length < (circle1.radius + circle2.radius)/2.f)
                     {
-                        circle1.position += glm::normalize(dif)*((circle1.radius + circle2->radius)/2.0f - length);
+                        circle1.position += glm::normalize(dif)*((circle1.radius + circle2.radius)/2.0f - length);
                         circle1.velocity = {0, 0};
                     }
                 }
             }
         }
+
+        void Move(Circles& dynamic_circles, Circles& static_circles)
+        {
+            dynamic_circles = std::move(m_dynamic_circles);
+            static_circles = std::move(m_static_circles);
+        }
+
+    private:
+        Circles m_dynamic_circles;
+        Circles m_static_circles;
     };
 }
