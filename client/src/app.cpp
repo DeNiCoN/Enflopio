@@ -70,6 +70,10 @@ namespace Enflopio
         Resize(width, height);
 
         m_network.Init();
+
+#ifdef __EMSCRIPTEN__
+        emscripten_sleep(100);
+#endif
         m_network.Send(Serialize(ServerMessages::Hello()));
     }
 

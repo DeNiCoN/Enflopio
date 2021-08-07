@@ -5,6 +5,7 @@
 #include <thread>
 #include <spdlog/spdlog.h>
 
+#include <emscripten/emscripten.h>
 #include <emscripten/websocket.h>
 
 namespace Enflopio
@@ -19,8 +20,9 @@ namespace Enflopio
         void Connect(const std::string& uri)
         {
             EmscriptenWebSocketCreateAttributes attributes;
+            emscripten_websocket_init_create_attributes(&attributes);
+
             attributes.url = uri.c_str();
-            emscripten_websocket_init_create_attributes(attributes);
 
             m_socket = emscripten_websocket_new(&attributes);
 
@@ -29,10 +31,10 @@ namespace Enflopio
                 spdlog::error("Websocket creation failed with error code {}", m_socket);
             }
 
-            emscripten_websocket_set_onopen_callback(m_socket, static_cast<void*>(this), WebsocketOpen);
-            emscripten_websocket_set_onclose_callback(m_socket, static_cast<void*>(this), WebsocketClose);
-            emscripten_websocket_set_onerror_callback(m_socket, static_cast<void*>(this), WebsocketError);
-            emscripten_websocket_set_onmessage_callback(m_socket, static_cast<void*>(this), WebsocketMessage);
+            emscripten_websocket_set_onopen_callback(m_socket, static_cast<void*>(this), WebSocketOpen);
+            emscripten_websocket_set_onclose_callback(m_socket, static_cast<void*>(this), WebSocketClose);
+            emscripten_websocket_set_onerror_callback(m_socket, static_cast<void*>(this), WebSocketError);
+            emscripten_websocket_set_onmessage_callback(m_socket, static_cast<void*>(this), WebSocketMessage);
         }
 
         void Send(Message message)
@@ -42,7 +44,7 @@ namespace Enflopio
 
         Message NextMessage()
         {
-            auto result = std::move(m_input_messages.front());
+            auto result = std::move(m_messages.front());
             m_messages.pop_front();
             return result;
         }
@@ -88,7 +90,7 @@ namespace Enflopio
                 "message(eventType={}, userData={}, data={}, numBytes={}, isText={})\n",
                 eventType, (long)userData, e->data, e->numBytes, e->isText);
 
-            connection->m_messages.push_back(Message(static_cast<char*>(e->data), e->numBytes))
+            connection->m_messages.push_back(Message(reinterpret_cast<char*>(e->data), e->numBytes));
 
             return 0;
         }

@@ -16,7 +16,7 @@ if (client_ENABLED)
       )
 
     set_target_properties(client PROPERTIES LINK_FLAGS
-      "-s USE_WEBGL2=1 -s MAX_WEBGL_VERSION=2 -s USE_GLFW=3 --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/emscripten.html"
+      "-s ASYNCIFY -lwebsocket.js -s USE_WEBGL2=1 -s MAX_WEBGL_VERSION=2 -s USE_GLFW=3 --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/emscripten.html"
       OUTPUT_NAME "index"
       SUFFIX ".html"
       )
