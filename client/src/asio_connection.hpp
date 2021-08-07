@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <deque>
 #include <mutex>
+#include <shared_mutex>
 #include <thread>
 #include <optional>
 
@@ -35,7 +36,7 @@ namespace Enflopio
 
         Message NextMessage()
         {
-            std::lock_guard lock(m_messages_mutex);
+            std::scoped_lock lock(m_messages_mutex);
             auto result = std::move(m_input_messages.front());
             m_input_messages.pop_front();
             return result;
@@ -43,7 +44,7 @@ namespace Enflopio
 
         bool HasNextMessage() const
         {
-            std::lock_guard lock(m_messages_mutex);
+            std::shared_lock lock(m_messages_mutex);
             return m_input_messages.size();
         }
 
@@ -56,7 +57,7 @@ namespace Enflopio
         boost::asio::ip::tcp::socket m_socket;
         Messages m_input_messages;
         Messages m_output_messages;
-        mutable std::mutex m_messages_mutex;
+        mutable std::shared_mutex m_messages_mutex;
         std::thread m_messages_thread;
 
         std::uint32_t m_current_input_header;

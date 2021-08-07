@@ -13,7 +13,8 @@ namespace Enflopio
         TCPConnectionListener(std::uint16_t port, Server& server)
             : m_server(server),
               m_acceptor(m_io_service,
-                         boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+                         boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
+              m_port(port)
         {
         }
 
@@ -31,6 +32,7 @@ namespace Enflopio
         void HandleReceive(TCPConnection::Ptr connection,
                            const boost::system::error_code& error);
 
+        std::uint16_t m_port;
         Server& m_server;
         boost::asio::io_service m_io_service;
         boost::asio::ip::tcp::acceptor m_acceptor;

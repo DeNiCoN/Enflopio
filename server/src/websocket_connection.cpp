@@ -2,15 +2,18 @@
 
 namespace Enflopio
 {
-    WebSocketConnection::WebSocketConnection(Socket* sock)
-        : m_socket(sock)
+    WebSocketConnection::WebSocketConnection(Socket* sock, uWS::Loop& loop)
+        : m_socket(sock), m_loop(loop)
     {
 
     }
 
-    void WebSocketConnection::Send(std::span<const char> span)
+    void WebSocketConnection::Send(Message message)
     {
-        m_socket->send(std::string_view(span.data(), span.size()));
+        m_loop.defer([&, message = std::move(message)]
+        {
+            m_socket->send(message);
+        });
     }
 
     void WebSocketConnection::Close()

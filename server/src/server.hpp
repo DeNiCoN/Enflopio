@@ -4,6 +4,7 @@
 #include "connection.hpp"
 #include "tcp_connection_listener.hpp"
 #include "websocket_connection_listener.hpp"
+#include "protocol_impl.hpp"
 
 namespace Enflopio
 {
@@ -39,9 +40,10 @@ namespace Enflopio
         using Duration = std::chrono::high_resolution_clock::duration;
         TimePoint m_last_update;
         Duration m_lag;
+        Duration m_frame = std::chrono::duration_cast<Duration>(std::chrono::duration<double>(1.0/60.0));
         TimePoint m_current_update;
 
-        std::vector<Connection::Ptr> m_connections;
+        std::vector<std::pair<Connection::Ptr, ProtocolImpl>> m_connections;
         std::mutex m_connections_mutex;
         TCPConnectionListener m_tcp_listener;
         WebSocketConnectionListener m_websocket_listener;

@@ -83,7 +83,7 @@ namespace Enflopio
             cereal::PortableBinaryOutputArchive ar;
         };
 
-        std::string Serialize(const ClientMessage& message)
+        inline std::string Serialize(const ClientMessage& message)
         {
             SerializeVisitor visitor;
             message.Accept(visitor);
@@ -91,9 +91,9 @@ namespace Enflopio
             return visitor.Get();
         }
 
-        ClientMessage::Ptr Deserialize(std::string_view message)
+        inline ClientMessage::Ptr Deserialize(std::string message)
         {
-            std::istringstream ss {std::string(message)};
+            std::istringstream ss {std::move(message)};
             cereal::PortableBinaryInputArchive ar(ss);
 
             auto deserialize = [&ar]<typename T>(std::unique_ptr<T> result)
@@ -179,9 +179,9 @@ namespace Enflopio
             cereal::PortableBinaryOutputArchive ar;
         };
 
-        ServerMessage::Ptr Deserialize(std::string_view message)
+        inline ServerMessage::Ptr Deserialize(std::string message)
         {
-            std::istringstream ss {std::string(message)};
+            std::istringstream ss {std::move(message)};
             cereal::PortableBinaryInputArchive ar(ss);
 
             auto deserialize = [&ar]<typename T>(std::unique_ptr<T> result)
@@ -201,7 +201,7 @@ namespace Enflopio
             return nullptr;
         }
 
-        std::string Serialize(const ServerMessage& message)
+        inline std::string Serialize(const ServerMessage& message)
         {
             SerializeVisitor visitor;
             message.Accept(visitor);

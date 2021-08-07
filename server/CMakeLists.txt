@@ -13,6 +13,7 @@ if (server_ENABLED)
   find_package(spdlog)
 
   target_link_libraries(server
+    enflopio::core
     uwebsockets::uwebsockets
     Boost::Boost
     spdlog::spdlog

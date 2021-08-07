@@ -10,8 +10,6 @@ using namespace Enflopio;
 int main(int argc, char *argv[]) {
     spdlog::set_level(spdlog::level::debug);
 
-    std::cout << "Lets go!!\n";
-
     //Start server with default options
     Server server({});
     server.Run();

@@ -48,6 +48,11 @@ namespace Enflopio
             return m_players.at(id);
         }
 
+        bool HasPlayer(PlayerID id) const
+        {
+            return m_players.count(id);
+        }
+
         const Players& GetPlayers() const
         {
             return m_players;

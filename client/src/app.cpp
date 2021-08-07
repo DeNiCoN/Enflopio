@@ -70,7 +70,7 @@ namespace Enflopio
         Resize(width, height);
 
         m_network.Init();
-        m_network.Send(ServerMessages::Serialize(ServerMessages::Hello()));
+        m_network.Send(Serialize(ServerMessages::Hello()));
     }
 
     void App::Update(double delta)
@@ -84,14 +84,19 @@ namespace Enflopio
         }
 
         m_input_manager.Update();
-        auto current_controls = m_input_manager.GetCurrent();
-        m_world.GetPlayer(m_current_player_id).SetControls(current_controls);
 
-        m_network_input.NewControls(current_controls);
+        auto current_controls = m_input_manager.GetCurrent();
+
+        if (m_world.HasPlayer(m_current_player_id))
+        {
+            m_world.GetPlayer(m_current_player_id).SetControls(current_controls);
+
+            m_network_input.NewControls(current_controls);
+
+            m_camera.Move(m_world.GetPlayer(m_current_player_id).position);
+        }
 
         m_world.Update(delta);
-
-        m_camera.Move(m_world.GetPlayer(m_current_player_id).position);
         m_camera.Update(delta);
 
         for (const auto& circle : m_world.GetCircles())

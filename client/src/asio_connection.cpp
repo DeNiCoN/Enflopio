@@ -59,7 +59,7 @@ namespace Enflopio
                 else
                 {
                     {
-                        std::lock_guard lock(m_messages_mutex);
+                        std::scoped_lock lock(m_messages_mutex);
                         m_input_messages.push_back(std::move(m_current_message));
                     }
 

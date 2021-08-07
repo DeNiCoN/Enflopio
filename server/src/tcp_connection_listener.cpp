@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include "tcp_connection.hpp"
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 namespace Enflopio
 {
@@ -10,6 +11,7 @@ namespace Enflopio
     {
         m_listen_thread = std::thread([&]
         {
+            spdlog::debug("TCP server thread started");
             StartAccept();
             m_io_service.run();
         });
@@ -26,12 +28,20 @@ namespace Enflopio
 
     void TCPConnectionListener::StartAccept()
     {
+        spdlog::info("Listening tcp on {} port started", m_port);
         m_acceptor.async_accept([&](const boost::system::error_code& error,
                                     boost::asio::ip::tcp::socket socket)
         {
             if (!error)
             {
-                m_server.NewConnection(std::make_shared<TCPConnection>(std::move(socket)));
+                spdlog::info("New tcp connection");
+                auto connection = std::make_shared<TCPConnection>(std::move(socket), m_io_service);
+                connection->ReadNextMessage();
+                m_server.NewConnection(std::move(connection));
+            }
+            else
+            {
+                spdlog::info("Error listening tcp connection: {}", error.message());
             }
             StartAccept();
         });

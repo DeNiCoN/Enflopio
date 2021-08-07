@@ -1,6 +1,7 @@
 #include "server.hpp"
 #include <chrono>
 #include <span>
+#include "messages.hpp"
 
 using namespace std;
 
@@ -20,7 +21,7 @@ namespace Enflopio
 
         while (!ShouldClose())
         {
-            UpdateLoop();
+                UpdateLoop();
         }
 
         StopListening();
@@ -45,14 +46,26 @@ namespace Enflopio
 
     void Server::UpdateLoop()
     {
-        const auto delta = UpdateClock();
+        UpdateClock();
         ProcessMessages();
-        UpdateGame(delta);
+        while(m_lag > m_frame)
+        {
+            m_lag -= m_frame;
+            UpdateGame(std::chrono::duration<double>(m_frame).count());
+        }
+        std::this_thread::sleep_for(m_frame - m_lag);
     }
 
     void Server::ProcessMessages()
     {
-
+        for (auto& [connection, protocol] : m_connections)
+        {
+            while(connection->HasNext())
+            {
+                auto message = ServerMessages::Deserialize(connection->ReadNext());
+                message->Accept(protocol);
+            }
+        }
     }
 
     void Server::UpdateGame(double delta)
@@ -64,12 +77,15 @@ namespace Enflopio
     {
         m_last_update = m_current_update;
         m_current_update = chrono::high_resolution_clock::now();
-        return chrono::duration<double>(m_current_update - m_last_update).count();
+        auto delta = m_current_update - m_last_update;
+        m_lag += delta;
+        return chrono::duration<double>(delta).count();
     }
 
     void Server::NewConnection(Connection::Ptr connection)
     {
         std::lock_guard lock(m_connections_mutex);
-        m_connections.push_back(std::move(connection));
+        ProtocolImpl protocol(*connection);
+        m_connections.push_back(std::make_pair(std::move(connection), protocol));
     }
 }

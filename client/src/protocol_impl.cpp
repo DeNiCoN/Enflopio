@@ -1,10 +1,12 @@
 #include "protocol_impl.hpp"
 #include "app.hpp"
+#include <spdlog/spdlog.h>
 
 namespace Enflopio
 {
     void ProtocolImpl::Handle(const ClientMessages::Hello &msg)
     {
+        spdlog::info("Hello received");
         Player current_player = Player();
         current_player.position = {0, 0};
         current_player.velocity = {0, 0};

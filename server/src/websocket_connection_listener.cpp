@@ -22,21 +22,25 @@ namespace Enflopio
                     {
                         spdlog::info("New websocket connection {}",
                                      ws->getRemoteAddressAsText());
-                        *ws->getUserData() = std::make_shared<WebSocketConnection>(ws);
+                        *ws->getUserData() = std::make_shared<WebSocketConnection>(ws, *uWS::Loop::get());
                         m_server.NewConnection(*ws->getUserData());
+                    },
+                    .message = [&](auto *ws, std::string_view message, uWS::OpCode opCode)
+                    {
+                        (*ws->getUserData())->NewMessage(std::string(message));
                     }
-                        }).listen(m_port, [&](auto *listen_socket)
-                        {
-                            if (!listen_socket)
-                            {
-                                spdlog::critical("Failed to start listening websocket on {} port", m_port);
-                                throw std::exception();
-                            }
-                            else
-                            {
-                                spdlog::info("Listening websocket on {} port started", m_port);
-                            }
-                        }).run();
+                }).listen(m_port, [&](auto *listen_socket)
+                {
+                    if (!listen_socket)
+                    {
+                        spdlog::critical("Failed to start listening websocket on {} port", m_port);
+                        throw std::exception();
+                    }
+                    else
+                    {
+                        spdlog::info("Listening websocket on {} port started", m_port);
+                    }
+                }).run();
             spdlog::debug("Websocket server thread finished");
         });
 
