@@ -4,6 +4,7 @@
 #include <deque>
 #include <mutex>
 #include <thread>
+#include <optional>
 
 namespace Enflopio
 {
@@ -13,6 +14,11 @@ namespace Enflopio
         using Message = std::string;
         using MessageView = std::string_view;
         using Messages = std::deque<Message>;
+
+        ASIOConnection() : m_socket(m_io_context)
+        {
+
+        }
 
         ~ASIOConnection()
         {
@@ -46,11 +52,11 @@ namespace Enflopio
         void ReadMessage(uint32_t size);
         void Write();
 
-        boost::asio::ip::tcp::socket m_socket;
         boost::asio::io_context m_io_context;
+        boost::asio::ip::tcp::socket m_socket;
         Messages m_input_messages;
         Messages m_output_messages;
-        std::mutex m_messages_mutex;
+        mutable std::mutex m_messages_mutex;
         std::thread m_messages_thread;
 
         std::uint32_t m_current_input_header;

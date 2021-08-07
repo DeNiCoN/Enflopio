@@ -31,19 +31,6 @@ namespace Enflopio
             return m_connection.HasNextMessage();
         }
 
-        //TODO Serializable
-        template<typename T>
-        void Send(const T& serializable)
-        {
-            std::ostringstream ss;
-            cereal::PortableBinaryOutputArchive ar(ss);
-
-            ar(serializable);
-
-            //FIXME copy
-            Send(ss.str());
-        }
-
         void Send(Message message)
         {
             m_connection.Send(std::move(message));
@@ -57,7 +44,5 @@ namespace Enflopio
 #endif
 
         Connection m_connection;
-
-        void Connect(std::string_view address, short port);
     };
 }

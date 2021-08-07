@@ -1,5 +1,5 @@
-#include "ShaderLoader.hpp"
-#include "GlIncludes.hpp"
+#include "shader_loader.hpp"
+#include "gl_includes.hpp"
 #include <vector>
 #include <spdlog/spdlog.h>
 

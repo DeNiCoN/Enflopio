@@ -1,15 +1,15 @@
 #pragma once
-#include "CirclePhysics.hpp"
-#include "ControlsState.hpp"
+#include "circle_physics.hpp"
+#include "controls_state.hpp"
 
 namespace Enflopio
 {
     struct Player : public CirclePhysics::Circle
     {
     public:
-        const float VELOCITY_CAP = 8;
-        const float ACCELERATION = 30;
-        const float DAMP = 30;
+        static constexpr float VELOCITY_CAP = 8;
+        static constexpr float ACCELERATION = 30;
+        static constexpr float DAMP = 30;
 
         Player()
         {

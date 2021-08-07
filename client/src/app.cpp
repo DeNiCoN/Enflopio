@@ -1,10 +1,10 @@
-#include "App.hpp"
+#include "app.hpp"
 #include <glm/glm.hpp>
-#include "GlIncludes.hpp"
+#include "gl_includes.hpp"
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
-#include "CircleBatch.hpp"
-#include "Messages.hpp"
+#include "circle_batch.hpp"
+#include "messages.hpp"
 
 namespace Enflopio
 {
@@ -33,6 +33,7 @@ namespace Enflopio
     void App::Resize(int width, int height)
     {
         m_camera.SetBorders(width, height);
+        // One unit is 5% of width: (1*scale) / width = 0.05;
         m_camera.SetScale(width * 0.05);
         CircleBatch::Instance().SetProjection(m_camera.GetProjection());
         glViewport(0, 0, width, height);
@@ -62,19 +63,14 @@ namespace Enflopio
         gladLoadGL();
 #endif
         glfwSwapInterval(1);
+        glClearColor(0, 0, 0, 1);
 
         int width, height;
         glfwGetFramebufferSize(m_window, &width, &height);
         Resize(width, height);
 
-        // One unit is 5% of width: (1*scale) / width = 0.05;
-        m_camera.SetScale(width * 0.05);
-        m_camera.SetPosition(m_world.GetPlayer(m_current_player_id).position);
-        glViewport(0, 0, width, height);
-        glClearColor(0, 0, 0, 1);
-
         m_network.Init();
-        m_network.Send(ServerMessages::Hello());
+        m_network.Send(ServerMessages::Serialize(ServerMessages::Hello()));
     }
 
     void App::Update(double delta)
@@ -84,7 +80,7 @@ namespace Enflopio
         while (m_network.HasNextMessage())
         {
             auto message_ptr = ClientMessages::Deserialize(m_network.NextMessage());
-            message_ptr->Visit(m_protocol);
+            message_ptr->Accept(m_protocol);
         }
 
         m_input_manager.Update();

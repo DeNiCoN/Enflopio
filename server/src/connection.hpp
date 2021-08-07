@@ -24,9 +24,9 @@ namespace Enflopio
             return message;
         }
 
-        bool HasNext() const { return m_received.size(); };
+        bool HasNextMessage() const { return m_received.size(); };
 
-    private:
+    protected:
         Messages m_received;
     };
 

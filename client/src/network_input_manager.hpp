@@ -1,12 +1,15 @@
 #pragma once
-#include "ControlsState.hpp"
+#include "controls_state.hpp"
 
 namespace Enflopio
 {
     class NetworkInputManager
     {
     public:
-        void NewControls(ControlsState& controls);
+        void NewControls(ControlsState& controls)
+        {
+
+        }
 
     };
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "GlIncludes.hpp"
+#include "gl_includes.hpp"
 #include <glm/glm.hpp>
 #include <string_view>
 #include <glm/gtc/type_ptr.hpp>

@@ -1,5 +1,5 @@
-#include "CircleBatch.hpp"
-#include "ShaderLoader.hpp"
+#include "circle_batch.hpp"
+#include "shader_loader.hpp"
 
 namespace Enflopio
 {

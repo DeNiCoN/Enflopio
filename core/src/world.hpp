@@ -5,9 +5,9 @@
 #include <vector>
 #include <memory>
 
-#include "CirclePhysics.hpp"
-#include "ControlsState.hpp"
-#include "Player.hpp"
+#include "circle_physics.hpp"
+#include "controls_state.hpp"
+#include "player.hpp"
 
 namespace Enflopio
 {
@@ -68,7 +68,7 @@ namespace Enflopio
 
             //TODO Rework
             m_physics.Proccess(m_circles, players, delta);
-            m_physics.Swap(m_circles, players);
+            m_physics.Move(m_circles, players);
 
             std::size_t i = 0;
             for (auto& [id, player] : m_players)

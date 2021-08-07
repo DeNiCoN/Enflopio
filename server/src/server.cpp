@@ -69,11 +69,7 @@ namespace Enflopio
 
     void Server::NewConnection(Connection::Ptr connection)
     {
-        static char buf[] = "Hello";
         std::lock_guard lock(m_connections_mutex);
-        buf[5]++;
-        connection->Send(buf);
-        connection->Close();
         m_connections.push_back(std::move(connection));
     }
 }

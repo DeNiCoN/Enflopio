@@ -1,8 +1,8 @@
 #pragma once
-#include "World.hpp"
-#include "ControlsState.hpp"
+#include "world.hpp"
+#include "controls_state.hpp"
 #include <GLFW/glfw3.h>
-#include "NetworkManager.hpp"
+#include "network_manager.hpp"
 
 namespace Enflopio
 {

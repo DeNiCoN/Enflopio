@@ -1,25 +1,21 @@
 #pragma once
-#include "Protocol.hpp"
-#include "App.hpp"
+#include "protocol.hpp"
+#include "player.hpp"
 
 namespace Enflopio
 {
+    class App;
+
     class ProtocolImpl final : public ClientProtocol
     {
     public:
-        void Handle(const ClientMessages::Hello& msg)
+        ProtocolImpl(App& app) : m_app(app)
         {
-            Player current_player = Player();
-            current_player.position = {0, 0};
-            current_player.velocity = {0, 0};
-            app.m_current_player_id = app.m_world.AddPlayer(current_player);
 
-            for (int i = 0; i < 100; i++)
-            {
-                app.m_world.AddCircle({{rand() % 100 - 50, rand() % 100 - 50}});
-            }
         }
+
+        void Handle(const ClientMessages::Hello& msg);
     private:
-        App& app;
+        App& m_app;
     };
 }

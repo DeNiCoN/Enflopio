@@ -1,9 +1,9 @@
 #pragma once
 
-
-
 namespace Enflopio
 {
+    template <typename Protocol, typename T>
+    class MessageBase;
 
     namespace ClientMessages
     {
@@ -13,17 +13,31 @@ namespace Enflopio
     namespace ServerMessages
     {
         struct Hello;
+        struct Input;
     }
-
-    class ServerProtocol
-    {
-    private:
-        virtual void Handle(const ServerMessages::Hello& msg) = 0;
-    };
 
     class ClientProtocol
     {
+    public:
+        virtual ~ClientProtocol() = default;
+
     private:
         virtual void Handle(const ClientMessages::Hello& msg) = 0;
+
+        template <typename Protocol, typename T>
+        friend class MessageBase;
+    };
+
+    class ServerProtocol
+    {
+    public:
+        virtual ~ServerProtocol() = default;
+
+    private:
+        virtual void Handle(const ServerMessages::Hello& msg) = 0;
+        virtual void Handle(const ServerMessages::Input& msg) = 0;
+
+        template <typename Protocol, typename T>
+        friend class MessageBase;
     };
 }

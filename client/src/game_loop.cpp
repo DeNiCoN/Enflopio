@@ -1,4 +1,4 @@
-#include "GameLoop.hpp"
+#include "game_loop.hpp"
 #include <chrono>
 #include <spdlog/spdlog.h>
 

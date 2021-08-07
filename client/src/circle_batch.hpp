@@ -1,8 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "World.hpp"
-#include "Shader.hpp"
-#include "GlIncludes.hpp"
+#include "world.hpp"
+#include "shader.hpp"
+#include "gl_includes.hpp"
 
 namespace Enflopio
 {

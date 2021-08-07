@@ -1,5 +1,5 @@
 #pragma once
-#include "Shader.hpp"
+#include "shader.hpp"
 #include <string_view>
 
 namespace Enflopio

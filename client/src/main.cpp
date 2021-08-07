@@ -17,8 +17,8 @@
 #include <fcntl.h>
 
 #include "test.hpp"
-#include "World.hpp"
-#include "App.hpp"
+#include "world.hpp"
+#include "app.hpp"
 
 typedef struct {
   char *buffer;

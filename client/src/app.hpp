@@ -1,13 +1,13 @@
 #pragma once
-#include "GameLoop.hpp"
-#include "CircleBatch.hpp"
-#include "World.hpp"
+#include "game_loop.hpp"
+#include "circle_batch.hpp"
+#include "world.hpp"
 #include <GLFW/glfw3.h>
-#include "InputManager.hpp"
-#include "Camera.hpp"
-#include "NetworkManager.hpp"
-#include "ProtocolImpl.hpp"
-#include "NetworkInputManager.hpp"
+#include "input_manager.hpp"
+#include "camera.hpp"
+#include "network_manager.hpp"
+#include "protocol_impl.hpp"
+#include "network_input_manager.hpp"
 
 namespace Enflopio
 {
@@ -22,7 +22,7 @@ namespace Enflopio
         bool ShouldStop() final override;
         void Terminate() final override;
     private:
-        App() = default;
+        App() : m_protocol(*this) {};
         World m_world;
         NetworkManager m_network;
         World::PlayerID m_current_player_id;
