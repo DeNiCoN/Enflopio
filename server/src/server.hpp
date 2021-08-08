@@ -5,6 +5,7 @@
 #include "tcp_connection_listener.hpp"
 #include "websocket_connection_listener.hpp"
 #include "protocol_impl.hpp"
+#include "world.hpp"
 
 namespace Enflopio
 {
@@ -47,5 +48,7 @@ namespace Enflopio
         std::mutex m_connections_mutex;
         TCPConnectionListener m_tcp_listener;
         WebSocketConnectionListener m_websocket_listener;
+
+        World m_world;
     };
 }

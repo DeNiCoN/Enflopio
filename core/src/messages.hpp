@@ -7,6 +7,16 @@
 #include <cereal/cereal.hpp>
 #include <cereal/archives/portable_binary.hpp>
 
+namespace glm
+{
+template<class Archive>
+void serialize(Archive & archive,
+               glm::vec2 & m)
+{
+    archive( m.x, m.y);
+}
+}
+
 namespace Enflopio
 {
     template <typename Protocol>
@@ -38,7 +48,8 @@ namespace Enflopio
     {
         enum class Id : ClientMessage::ID
         {
-            HELO
+            HELO,
+            SYNC
         };
 
         template <typename T>
@@ -48,12 +59,24 @@ namespace Enflopio
         {
             Message::ID id() const override { return static_cast<Message::ID>(Id::HELO); }
 
+            glm::vec2 player_pos;
+
+            template <typename Archive>
+            void serialize(Archive& ar)
+            {
+                ar(player_pos);
+            }
+        };
+
+        struct Sync : public Base<Sync>
+        {
+            Message::ID id() const override { return static_cast<Message::ID>(Id::SYNC); }
+
             template <typename Archive>
             void serialize(Archive& ar)
             {
             }
         };
-
 
         //TODO Consider adding generic for each visitor
         class SerializeVisitor : public ClientProtocol
@@ -65,6 +88,11 @@ namespace Enflopio
             }
 
             void Handle(const Hello& msg)
+            {
+                Serialize(msg);
+            }
+
+            void Handle(const Sync& msg)
             {
                 Serialize(msg);
             }
@@ -107,6 +135,7 @@ namespace Enflopio
             //FIXME checking
             switch (static_cast<Id>(id)) {
             case Id::HELO: return deserialize(std::make_unique<Hello>());
+            case Id::SYNC: return deserialize(std::make_unique<Sync>());
             }
 
             return nullptr;
@@ -143,6 +172,7 @@ namespace Enflopio
             template <typename Archive>
             void serialize(Archive& ar)
             {
+
             }
         };
 

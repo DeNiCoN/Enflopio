@@ -70,7 +70,7 @@ namespace Enflopio
 
     void Server::UpdateGame(double delta)
     {
-
+        m_world.Update(delta);
     }
 
     double Server::UpdateClock()
@@ -85,7 +85,7 @@ namespace Enflopio
     void Server::NewConnection(Connection::Ptr connection)
     {
         std::lock_guard lock(m_connections_mutex);
-        ProtocolImpl protocol(*connection);
+        ProtocolImpl protocol(*connection, m_world);
         m_connections.push_back(std::make_pair(std::move(connection), protocol));
     }
 }

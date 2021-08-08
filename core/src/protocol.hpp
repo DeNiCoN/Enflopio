@@ -8,6 +8,7 @@ namespace Enflopio
     namespace ClientMessages
     {
         struct Hello;
+        struct Sync;
     }
 
     namespace ServerMessages
@@ -23,6 +24,7 @@ namespace Enflopio
 
     private:
         virtual void Handle(const ClientMessages::Hello& msg) = 0;
+        virtual void Handle(const ClientMessages::Sync& msg) = 0;
 
         template <typename Protocol, typename T>
         friend class MessageBase;

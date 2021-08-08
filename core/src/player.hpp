@@ -18,7 +18,6 @@ namespace Enflopio
 
         void Update(double delta)
         {
-            float speed = glm::length(velocity);
             velocity += m_controls.direction * ACCELERATION * static_cast<float>(delta);
             if (glm::length2(velocity) >= VELOCITY_CAP*VELOCITY_CAP)
                 velocity = glm::normalize(velocity) * VELOCITY_CAP;

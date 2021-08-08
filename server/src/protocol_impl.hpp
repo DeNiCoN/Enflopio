@@ -1,14 +1,15 @@
 #pragma once
 #include "connection.hpp"
 #include "protocol.hpp"
+#include "world.hpp"
 
 namespace Enflopio
 {
     class ProtocolImpl final : public ServerProtocol
     {
     public:
-        ProtocolImpl(Connection& connection)
-            : m_connection(connection)
+        ProtocolImpl(Connection& connection, World& world)
+            : m_connection(connection), m_world(world)
         {
 
         }
@@ -17,5 +18,7 @@ namespace Enflopio
         void Handle(const ServerMessages::Input& msg) override;
     private:
         Connection& m_connection;
+        World& m_world;
+        World::PlayerID m_current_player;
     };
 }

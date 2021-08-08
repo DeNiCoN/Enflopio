@@ -15,8 +15,6 @@ namespace Enflopio
     {
     public:
         using Circle = CirclePhysics::Circle;
-
-
         using Circles = std::vector<Circle>;
         using PlayerID = std::size_t;
         using Players = std::unordered_map<PlayerID, Player>;
@@ -82,10 +80,17 @@ namespace Enflopio
             }
         }
 
+        glm::vec2 GetSize() const
+        {
+            return m_size;
+        }
+
     private:
         CirclePhysics m_physics;
         Circles m_circles;
         Players m_players;
         PlayerID m_next_player_id = 0;
+
+        glm::vec2 m_size = {512., 512.};
     };
 }

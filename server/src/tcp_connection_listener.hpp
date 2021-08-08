@@ -32,10 +32,10 @@ namespace Enflopio
         void HandleReceive(TCPConnection::Ptr connection,
                            const boost::system::error_code& error);
 
-        std::uint16_t m_port;
         Server& m_server;
         boost::asio::io_service m_io_service;
         boost::asio::ip::tcp::acceptor m_acceptor;
+        std::uint16_t m_port;
         std::thread m_listen_thread;
 
         friend class TCPConnection;

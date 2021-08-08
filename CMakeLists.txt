@@ -26,7 +26,7 @@ if (DEPENDENCIES_ONLY)
   return()
 endif()
 
-add_compile_options(-Wall -Wextra -pedantic)
+add_compile_options(-Wall -Wextra -pedantic -Wno-unused-parameter)
 add_subdirectory(core)
 add_subdirectory(client)
 add_subdirectory(server)

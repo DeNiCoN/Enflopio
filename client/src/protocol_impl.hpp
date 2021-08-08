@@ -15,6 +15,7 @@ namespace Enflopio
         }
 
         void Handle(const ClientMessages::Hello& msg) override;
+        void Handle(const ClientMessages::Sync& msg) override;
     private:
         App& m_app;
     };
