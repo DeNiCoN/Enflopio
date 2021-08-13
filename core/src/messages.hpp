@@ -4,18 +4,8 @@
 #include "controls_state.hpp"
 
 #include <sstream>
-#include <cereal/cereal.hpp>
+#include "serialization.hpp"
 #include <cereal/archives/portable_binary.hpp>
-
-namespace glm
-{
-template<class Archive>
-void serialize(Archive & archive,
-               glm::vec2 & m)
-{
-    archive( m.x, m.y);
-}
-}
 
 namespace Enflopio
 {
@@ -166,13 +156,12 @@ namespace Enflopio
         struct Input : public Base<Input>
         {
             Message::ID id() const override { return static_cast<Message::ID>(Id::INPT); }
-            World::PlayerID player_id;
             ControlsState input;
 
             template <typename Archive>
             void serialize(Archive& ar)
             {
-
+                ar(input);
             }
         };
 
@@ -225,7 +214,7 @@ namespace Enflopio
             //FIXME checking
             switch (static_cast<Id>(id)) {
             case Id::HELO: return deserialize(std::make_unique<Hello>());
-            case Id::INPT: return deserialize(std::make_unique<Hello>());
+            case Id::INPT: return deserialize(std::make_unique<Input>());
             }
 
             return nullptr;

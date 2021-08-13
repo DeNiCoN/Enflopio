@@ -10,6 +10,7 @@ namespace Enflopio
         virtual ~GameLoop() = default;
     protected:
         virtual void Init() = 0;
+        virtual void PreUpdate() = 0;
         virtual void Update(double delta) = 0;
         virtual void Render(double delay) = 0;
         virtual bool ShouldStop() = 0;

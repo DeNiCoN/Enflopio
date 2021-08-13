@@ -21,6 +21,8 @@ namespace Enflopio
         m_lag += std::chrono::duration<double>(m_current_update - m_last_update).count();
         m_last_update = m_current_update;
 
+        PreUpdate();
+
         while (m_lag > desired_fps)
         {
             m_lag -= desired_fps;

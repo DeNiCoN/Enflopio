@@ -21,7 +21,7 @@ namespace Enflopio
 
         while (!ShouldClose())
         {
-                UpdateLoop();
+            Frame();
         }
 
         StopListening();
@@ -44,9 +44,11 @@ namespace Enflopio
         m_current_update = chrono::high_resolution_clock::now();
     }
 
-    void Server::UpdateLoop()
+    void Server::Frame()
     {
+        //Update clock
         UpdateClock();
+        //
         ProcessMessages();
         while(m_lag > m_frame)
         {
@@ -62,6 +64,7 @@ namespace Enflopio
         {
             while(connection->HasNext())
             {
+                spdlog::debug("New message");
                 auto message = ServerMessages::Deserialize(connection->ReadNext());
                 message->Accept(protocol);
             }

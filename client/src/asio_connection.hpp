@@ -43,7 +43,10 @@ namespace Enflopio
             spdlog::info("Connection successfull", endpoints.size());
 
             ReadNextMessage();
-            m_messages_thread = std::thread([&] {m_io_context.run();});
+            m_messages_thread = std::thread([&] {
+                m_io_context.run();
+                spdlog::info("IO context stopped");
+            });
         }
 
         void Send(Message message)
@@ -89,6 +92,7 @@ namespace Enflopio
                     }
                     else
                     {
+                        spdlog::debug("Read message, size {}", m_current_input_header);
                         ReadMessage(m_current_input_header);
                     }
                 });
@@ -115,7 +119,6 @@ namespace Enflopio
                             std::scoped_lock lock(m_messages_mutex);
                             m_input_messages.push_back(std::move(m_current_message));
                         }
-
                         ReadNextMessage();
                     }
                 }

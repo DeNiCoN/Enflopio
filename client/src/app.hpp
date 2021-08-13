@@ -11,19 +11,21 @@
 
 namespace Enflopio
 {
-    class App : public GameLoop
+    class App final : public GameLoop
     {
     public:
         static App& Instance();
     protected:
         void Init() final override;
+        void PreUpdate() final override;
         void Update(double delta) final override;
         void Render(double delay) final override;
         bool ShouldStop() final override;
         void Terminate() final override;
     private:
-        App() : m_protocol(*this) {};
+        App() : m_protocol(*this), m_network_input(m_network) {};
         World m_world;
+        ProtocolImpl m_protocol;
         NetworkManager m_network;
         World::PlayerID m_current_player_id;
 
@@ -31,7 +33,6 @@ namespace Enflopio
         InputManager m_input_manager;
         NetworkInputManager m_network_input;
         Camera m_camera;
-        ProtocolImpl m_protocol;
 
         void Resize(int width, int heigth);
 

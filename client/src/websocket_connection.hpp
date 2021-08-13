@@ -35,10 +35,22 @@ namespace Enflopio
             emscripten_websocket_set_onclose_callback(m_socket, static_cast<void*>(this), WebSocketClose);
             emscripten_websocket_set_onerror_callback(m_socket, static_cast<void*>(this), WebSocketError);
             emscripten_websocket_set_onmessage_callback(m_socket, static_cast<void*>(this), WebSocketMessage);
+
+#ifdef __EMSCRIPTEN__
+        while (true)
+        {
+            unsigned short state;
+            emscripten_websocket_get_ready_state(m_socket, &state);
+            if (state == 1)
+                break;
+            emscripten_sleep(100);
+        }
+#endif
         }
 
         void Send(Message message)
         {
+            spdlog::debug("Send websocket");
             emscripten_websocket_send_binary(m_socket, message.data(), message.size());
         }
 

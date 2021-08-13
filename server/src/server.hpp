@@ -28,7 +28,7 @@ namespace Enflopio
     private:
         void StartListening();
         void StopListening();
-        void UpdateLoop();
+        void Frame();
         void ProcessMessages();
 
         void InitClock();

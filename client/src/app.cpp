@@ -70,44 +70,50 @@ namespace Enflopio
         Resize(width, height);
 
         m_network.Init();
-
-#ifdef __EMSCRIPTEN__
-        emscripten_sleep(100);
-#endif
         m_network.Send(Serialize(ServerMessages::Hello()));
+    }
+
+    void App::PreUpdate()
+    {
+
     }
 
     void App::Update(double delta)
     {
         CircleBatch::Instance().Clear();
 
+        //process new messages
         while (m_network.HasNextMessage())
         {
             auto message_ptr = ClientMessages::Deserialize(m_network.NextMessage());
             message_ptr->Accept(m_protocol);
         }
 
+        //Update controls
         m_input_manager.Update();
-
         auto current_controls = m_input_manager.GetCurrent();
 
         if (m_world.HasPlayer(m_current_player_id))
         {
+            //Client side prediction. Kind of, it's not done yet
             m_world.GetPlayer(m_current_player_id).SetControls(current_controls);
 
-            m_network_input.NewControls(current_controls);
-
-            m_camera.Move(m_world.GetPlayer(m_current_player_id).position);
+            //If controls changed, send them to server
+            m_network_input.ProcessControls(current_controls);
         }
 
+        //Update simulation
         m_world.Update(delta);
         m_camera.Update(delta);
+        if (m_world.HasPlayer(m_current_player_id))
+            m_camera.Move(m_world.GetPlayer(m_current_player_id).position);
 
+        //Add to Render
         for (const auto& circle : m_world.GetCircles())
             CircleBatch::Instance().Add(circle);
 
-        for (const auto& player : m_world.GetPlayers())
-            CircleBatch::Instance().Add(player.second);
+        for (const auto& [id, player] : m_world.GetPlayers())
+            CircleBatch::Instance().Add(player);
     }
 
     bool App::ShouldStop()
