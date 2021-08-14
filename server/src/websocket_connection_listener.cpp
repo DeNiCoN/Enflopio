@@ -23,11 +23,15 @@ namespace Enflopio
                         spdlog::info("New websocket connection {}",
                                      ws->getRemoteAddressAsText());
                         *ws->getUserData() = std::make_shared<WebSocketConnection>(ws, *uWS::Loop::get());
-                        m_server.NewConnection(*ws->getUserData());
+                        m_server.PendingConnect(*ws->getUserData());
                     },
                     .message = [&](auto *ws, std::string_view message, uWS::OpCode opCode)
                     {
                         (*ws->getUserData())->NewMessage(std::string(message));
+                    },
+                    .close = [&](auto *ws, int code, std::string_view message)
+                    {
+                        m_server.PendingDisconnect(*ws->getUserData());
                     }
                 }).listen(m_port, [&](auto *listen_socket)
                 {

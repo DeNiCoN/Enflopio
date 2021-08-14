@@ -39,7 +39,18 @@ namespace Enflopio
             m_controls = controls;
         }
 
+        template <typename Archive>
+        void serialize(Archive& ar)
+        {
+            ar(cereal::base_class<CirclePhysics::Circle>(this), m_controls);
+        }
+
     private:
         ControlsState m_controls;
     };
+}
+
+inline std::ostream& operator<<(std::ostream& out, Enflopio::Player& rhs)
+{
+    return out << "(" << rhs.position.x << ", " << rhs.position.y << ")";
 }

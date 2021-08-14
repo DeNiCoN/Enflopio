@@ -27,10 +27,6 @@ namespace Enflopio
         void StopListening();
     private:
         void StartAccept();
-        void HandleWrite(TCPConnection::Ptr connection,
-                         const boost::system::error_code& error);
-        void HandleReceive(TCPConnection::Ptr connection,
-                           const boost::system::error_code& error);
 
         Server& m_server;
         boost::asio::io_service m_io_service;

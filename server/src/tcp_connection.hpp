@@ -13,7 +13,9 @@ namespace Enflopio
         using Socket = boost::asio::ip::tcp::socket;
         using IOContext = boost::asio::io_context;
 
-        TCPConnection(Socket socket, IOContext& io_context);
+        using OnCloseCallback = std::function<void(Ptr)>;
+
+        TCPConnection(Socket socket, IOContext& io_context, OnCloseCallback onClose);
 
         Socket& GetSocket() { return m_socket; }
 
@@ -34,6 +36,7 @@ namespace Enflopio
         std::uint32_t m_current_output_header;
         Message m_current_message;
 
+        OnCloseCallback m_close_callback;
         friend class TCPConnectionListener;
     };
 }

@@ -4,8 +4,9 @@
 
 namespace Enflopio
 {
-    TCPConnection::TCPConnection(Socket socket, IOContext& io_context)
-        : m_socket(std::move(socket)), m_io_context(io_context)
+    TCPConnection::TCPConnection(Socket socket, IOContext& io_context, OnCloseCallback on_close)
+        : m_socket(std::move(socket)), m_io_context(io_context),
+          m_close_callback(std::move(on_close))
     {
 
     }
@@ -40,6 +41,7 @@ namespace Enflopio
                 {
                     spdlog::error("Could not read header: {}",
                                   boost::system::system_error(error_code).what());
+                    m_close_callback(shared_from_this());
                     return;
                 }
                 else
@@ -63,6 +65,7 @@ namespace Enflopio
                 {
                     spdlog::error("Could not read message: {}",
                                   boost::system::system_error(error_code).what());
+                    m_close_callback(shared_from_this());
                     return;
                 }
                 else

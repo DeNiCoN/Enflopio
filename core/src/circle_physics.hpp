@@ -16,6 +16,12 @@ namespace Enflopio
             glm::vec2 velocity = {0, 0};
             glm::vec2 acceleration = {0, 0};
             float radius = 1;
+
+            template <typename Archive>
+            void serialize(Archive& ar)
+            {
+                ar(position, velocity, acceleration, radius);
+            }
         };
         using Circles = std::vector<Circle>;
 

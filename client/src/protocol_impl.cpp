@@ -17,6 +17,9 @@ namespace Enflopio
 
     void ProtocolImpl::Handle(const ClientMessages::Sync& msg)
     {
+        m_app.m_debug_circles.clear();
 
+        for (const auto& [id, player] : msg.players)
+            m_app.m_debug_circles.push_back(player.position);
     }
 }

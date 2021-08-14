@@ -35,9 +35,13 @@ namespace Enflopio
             if (!error)
             {
                 spdlog::info("New tcp connection");
-                auto connection = std::make_shared<TCPConnection>(std::move(socket), m_io_service);
+                auto connection = std::make_shared<TCPConnection>(std::move(socket), m_io_service,
+                                                                  [&](Connection::Ptr ptr)
+                                                                  {
+                                                                      m_server.PendingDisconnect(std::move(ptr));
+                                                                  });
                 connection->ReadNextMessage();
-                m_server.NewConnection(std::move(connection));
+                m_server.PendingConnect(std::move(connection));
             }
             else
             {

@@ -16,6 +16,8 @@ namespace Enflopio
 
         void Handle(const ServerMessages::Hello& msg) override;
         void Handle(const ServerMessages::Input& msg) override;
+
+        void Disconnect();
     private:
         Connection& m_connection;
         World& m_world;

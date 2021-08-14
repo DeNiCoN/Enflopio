@@ -51,6 +51,11 @@ namespace Enflopio
             return m_players.count(id);
         }
 
+        void RemovePlayer(PlayerID id)
+        {
+            m_players.erase(id);
+        }
+
         const Players& GetPlayers() const
         {
             return m_players;
@@ -72,12 +77,6 @@ namespace Enflopio
             //TODO Rework
             m_physics.Proccess(m_circles, players, delta);
             m_physics.Move(m_circles, players);
-
-            std::size_t i = 0;
-            for (auto& [id, player] : m_players)
-            {
-                player = m_players[i];
-            }
         }
 
         glm::vec2 GetSize() const
@@ -91,6 +90,6 @@ namespace Enflopio
         Players m_players;
         PlayerID m_next_player_id = 0;
 
-        glm::vec2 m_size = {512., 512.};
+        glm::vec2 m_size = {32., 32.};
     };
 }

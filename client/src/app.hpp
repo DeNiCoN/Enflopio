@@ -34,6 +34,8 @@ namespace Enflopio
         NetworkInputManager m_network_input;
         Camera m_camera;
 
+        std::vector<glm::vec2> m_debug_circles;
+
         void Resize(int width, int heigth);
 
         friend class ProtocolImpl;

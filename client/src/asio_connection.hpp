@@ -92,7 +92,7 @@ namespace Enflopio
                     }
                     else
                     {
-                        spdlog::debug("Read message, size {}", m_current_input_header);
+                        //spdlog::debug("Read message, size {}", m_current_input_header);
                         ReadMessage(m_current_input_header);
                     }
                 });

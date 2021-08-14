@@ -98,9 +98,6 @@ namespace Enflopio
                                  void *userData)
         {
             auto* connection = static_cast<WebsocketConnection*>(userData);
-            spdlog::debug(
-                "message(eventType={}, userData={}, data={}, numBytes={}, isText={})\n",
-                eventType, (long)userData, e->data, e->numBytes, e->isText);
 
             connection->m_messages.push_back(Message(reinterpret_cast<char*>(e->data), e->numBytes));
 

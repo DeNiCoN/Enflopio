@@ -21,7 +21,13 @@ namespace Enflopio
 
         while (!ShouldClose())
         {
+            m_tick++;
             Frame();
+
+            if (m_tick % 20 == 0)
+            {
+                SendSync();
+            }
         }
 
         StopListening();
@@ -39,17 +45,16 @@ namespace Enflopio
         m_tcp_listener.StopListening();
     }
 
-    void Server::InitClock()
-    {
-        m_current_update = chrono::high_resolution_clock::now();
-    }
-
     void Server::Frame()
     {
         //Update clock
         UpdateClock();
-        //
-        ProcessMessages();
+        if (m_lag > m_frame)
+        {
+            ProcessConnections();
+            ProcessMessages();
+        }
+
         while(m_lag > m_frame)
         {
             m_lag -= m_frame;
@@ -71,6 +76,20 @@ namespace Enflopio
         }
     }
 
+    void Server::SendSync()
+    {
+        for (auto& [connection, protocol] : m_connections)
+        {
+            ClientMessages::Sync message;
+            message.players = m_world.GetPlayers();
+            for (const auto& [id, player] : message.players)
+            {
+                spdlog::info("{}: ({}, {})", id, player.position.x, player.position.y);
+            }
+            connection->Send(Serialize(message));
+        }
+    }
+
     void Server::UpdateGame(double delta)
     {
         m_world.Update(delta);
@@ -85,10 +104,53 @@ namespace Enflopio
         return chrono::duration<double>(delta).count();
     }
 
-    void Server::NewConnection(Connection::Ptr connection)
+    void Server::InitClock()
     {
-        std::lock_guard lock(m_connections_mutex);
+        m_current_update = chrono::high_resolution_clock::now();
+        m_lag = std::chrono::seconds(0);
+    }
+
+    void Server::PendingConnect(Connection::Ptr ptr)
+    {
+        std::scoped_lock lock(m_connections_mutex);
+        m_pending_connect.push_back(std::move(ptr));
+    }
+
+    void Server::PendingDisconnect(Connection::Ptr ptr)
+    {
+        std::scoped_lock lock(m_connections_mutex);
+        m_pending_disconnect.push_back(std::move(ptr));
+    }
+
+    void Server::NewConnect(Connection::Ptr connection)
+    {
+        spdlog::debug("New connection");
         ProtocolImpl protocol(*connection, m_world);
-        m_connections.push_back(std::make_pair(std::move(connection), protocol));
+        m_connections.insert(std::make_pair(std::move(connection), std::move(protocol)));
+    }
+
+    void Server::Disconnect(Connection::Ptr connection)
+    {
+        spdlog::debug("Disconnect");
+        auto it = m_connections.find(connection);
+        it->second.Disconnect();
+        m_connections.erase(connection);
+    }
+
+    void Server::ProcessConnections()
+    {
+        std::scoped_lock lock(m_connections_mutex);
+        for (auto& ptr : m_pending_connect)
+        {
+            NewConnect(std::move(ptr));
+        }
+        m_pending_connect.clear();
+
+        for (auto& ptr : m_pending_disconnect)
+        {
+            Disconnect(std::move(ptr));
+        }
+        m_pending_disconnect.clear();
+
     }
 }

@@ -23,13 +23,21 @@ namespace Enflopio
             std::uint16_t websocket_port = 25326;
         };
 
-        void NewConnection(Connection::Ptr);
-        void StopConnection(Connection::Ptr);
+        unsigned long GetTick() const { return m_tick; }
+
+        void PendingConnect(Connection::Ptr);
+        void PendingDisconnect(Connection::Ptr);
     private:
         void StartListening();
         void StopListening();
+
+        void NewConnect(Connection::Ptr);
+        void Disconnect(Connection::Ptr);
+
         void Frame();
         void ProcessMessages();
+        void ProcessConnections();
+        void SendSync();
 
         void InitClock();
         double UpdateClock();
@@ -44,8 +52,12 @@ namespace Enflopio
         Duration m_frame = std::chrono::duration_cast<Duration>(std::chrono::duration<double>(1.0/60.0));
         TimePoint m_current_update;
 
-        std::vector<std::pair<Connection::Ptr, ProtocolImpl>> m_connections;
+        unsigned long m_tick = 0;
+
+        std::unordered_map<Connection::Ptr, ProtocolImpl> m_connections;
         std::mutex m_connections_mutex;
+        std::vector<Connection::Ptr> m_pending_connect;
+        std::vector<Connection::Ptr> m_pending_disconnect;
         TCPConnectionListener m_tcp_listener;
         WebSocketConnectionListener m_websocket_listener;
 

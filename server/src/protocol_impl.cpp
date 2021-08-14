@@ -6,6 +6,12 @@
 
 namespace Enflopio
 {
+    void ProtocolImpl::Disconnect()
+    {
+        if (m_world.HasPlayer(m_current_player))
+            m_world.RemovePlayer(m_current_player);
+    }
+
     void ProtocolImpl::Handle(const ServerMessages::Hello &msg)
     {
         spdlog::debug("Hello received");
@@ -22,6 +28,7 @@ namespace Enflopio
 
     void ProtocolImpl::Handle(const ServerMessages::Input &msg)
     {
-        spdlog::debug("Input received");
+        spdlog::debug("Input received, Player: {}", m_current_player);
+        m_world.GetPlayer(m_current_player).SetControls(msg.input);
     }
 }

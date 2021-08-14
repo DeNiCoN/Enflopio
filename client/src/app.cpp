@@ -114,6 +114,14 @@ namespace Enflopio
 
         for (const auto& [id, player] : m_world.GetPlayers())
             CircleBatch::Instance().Add(player);
+
+        for (const auto& pos : m_debug_circles)
+        {
+            World::Circle cir;
+            cir.position = pos;
+            cir.radius = 0.5;
+            CircleBatch::Instance().Add(cir);
+        }
     }
 
     bool App::ShouldStop()
