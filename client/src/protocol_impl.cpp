@@ -10,16 +10,22 @@ namespace Enflopio
         spdlog::debug("Hello received: ({}, {})", msg.player_pos.x, msg.player_pos.y);
         Player current_player;
         current_player.position = msg.player_pos;
-        m_app.m_current_player_id = m_app.m_world.AddPlayer(current_player);
+        m_app.m_current_player_id = m_app.m_world.AddPlayer(current_player, msg.player_id);
 
         m_app.m_camera.SetPosition(m_app.m_world.GetPlayer(m_app.m_current_player_id).position);
     }
 
     void ProtocolImpl::Handle(const ClientMessages::Sync& msg)
     {
-        m_app.m_debug_circles.clear();
-
         for (const auto& [id, player] : msg.players)
-            m_app.m_debug_circles.push_back(player.position);
+        {
+            if (id != m_app.m_current_player_id)
+            {
+                if (!m_app.m_world.HasPlayer(id))
+                    m_app.m_world.AddPlayer(player, id);
+                else
+                    m_app.m_world.GetPlayer(id) = player;
+            }
+        }
     }
 }

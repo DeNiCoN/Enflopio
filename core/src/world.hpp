@@ -16,7 +16,7 @@ namespace Enflopio
     public:
         using Circle = CirclePhysics::Circle;
         using Circles = std::vector<Circle>;
-        using PlayerID = std::size_t;
+        using PlayerID = std::uint64_t;
         using Players = std::unordered_map<PlayerID, Player>;
 
         Circle& AddCircle(Circle circle)
@@ -34,6 +34,13 @@ namespace Enflopio
         {
             m_players[m_next_player_id] = std::move(player);
             return m_next_player_id++;
+        }
+
+        PlayerID AddPlayer(Player player, PlayerID id)
+        {
+            m_players[id] = std::move(player);
+            m_next_player_id = std::max(m_next_player_id, id) + 1;
+            return id;
         }
 
         Player& GetPlayer(PlayerID id)

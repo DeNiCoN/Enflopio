@@ -51,11 +51,12 @@ namespace Enflopio
             Message::ID id() const override { return static_cast<Message::ID>(Id::HELO); }
 
             glm::vec2 player_pos;
+            World::PlayerID player_id;
 
             template <typename Archive>
             void serialize(Archive& ar)
             {
-                ar(player_pos);
+                ar(player_pos, player_id);
             }
         };
 

@@ -24,7 +24,7 @@ namespace Enflopio
             m_tick++;
             Frame();
 
-            if (m_tick % 20 == 0)
+            if (m_tick % 4 == 0)
             {
                 SendSync();
             }

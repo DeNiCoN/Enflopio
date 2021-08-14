@@ -22,6 +22,7 @@ namespace Enflopio
 
         ClientMessages::Hello message;
         message.player_pos = player_pos;
+        message.player_id = m_current_player;
         spdlog::debug("Sending Hello: ({}, {})", player_pos.x, player_pos.y);
         m_connection.Send(Serialize(message));
     }
