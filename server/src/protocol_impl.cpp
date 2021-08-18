@@ -29,7 +29,8 @@ namespace Enflopio
 
     void ProtocolImpl::Handle(const ServerMessages::Input &msg)
     {
-        spdlog::debug("Input received, Player: {}", m_current_player);
-        m_world.GetPlayer(m_current_player).SetControls(msg.input);
+        spdlog::debug("Input received, Player: {}, id: {}", m_current_player, msg.input.id);
+        m_world.GetPlayer(m_current_player).SetControls(msg.input.state);
+        m_last_input_id = msg.input.id;
     }
 }

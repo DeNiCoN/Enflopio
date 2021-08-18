@@ -99,7 +99,7 @@ namespace Enflopio
             m_world.GetPlayer(m_current_player_id).SetControls(current_controls);
 
             //If controls changed, send them to server
-            m_network_input.ProcessControls(current_controls);
+            m_network_input.ProcessControls(current_controls, delta);
         }
 
         //Update simulation
@@ -115,12 +115,12 @@ namespace Enflopio
         for (const auto& [id, player] : m_world.GetPlayers())
             CircleBatch::Instance().Add(player);
 
-        for (const auto& pos : m_debug_circles)
+        for (const auto& [pos, color] : m_debug_circles)
         {
             World::Circle cir;
             cir.position = pos;
             cir.radius = 0.5;
-            CircleBatch::Instance().Add(cir);
+            CircleBatch::Instance().Add(cir, color);
         }
     }
 
@@ -143,5 +143,10 @@ namespace Enflopio
     {
         glfwDestroyWindow(m_window);
         glfwTerminate();
+    }
+
+    void App::AddDebugDraw(glm::vec2 position, glm::vec4 color)
+    {
+        m_debug_circles.push_back({position, color});
     }
 }

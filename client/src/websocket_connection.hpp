@@ -50,7 +50,6 @@ namespace Enflopio
 
         void Send(Message message)
         {
-            spdlog::debug("Send websocket");
             emscripten_websocket_send_binary(m_socket, message.data(), message.size());
         }
 

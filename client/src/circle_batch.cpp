@@ -58,9 +58,9 @@ void main()
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     }
 
-    void CircleBatch::Add(const World::Circle& circle)
+    void CircleBatch::Add(const World::Circle& circle, glm::vec4 color)
     {
-        m_circles.push_back(circle);
+        m_circles.push_back(std::make_pair(circle, color));
     }
 
     void CircleBatch::Draw(double delay)
@@ -74,11 +74,11 @@ void main()
                               sizeof(vertices[0]), (void *)0);
         glEnableVertexAttribArray(0);
 
-        for (const auto& circle : m_circles)
+        for (const auto& [circle, color] : m_circles)
         {
             m_shader.SetUniform("radius", circle.radius);
             m_shader.SetUniform("position", circle.position);
-            m_shader.SetUniform("color", glm::vec4(1., 1., 1., 1.));
+            m_shader.SetUniform("color", color);
 
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }

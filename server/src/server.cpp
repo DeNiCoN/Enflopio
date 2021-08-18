@@ -82,6 +82,7 @@ namespace Enflopio
         {
             ClientMessages::Sync message;
             message.players = m_world.GetPlayers();
+            message.last_input_id = protocol.LastInputId();
             for (const auto& [id, player] : message.players)
             {
                 spdlog::info("{}: ({}, {})", id, player.position.x, player.position.y);

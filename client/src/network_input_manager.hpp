@@ -3,6 +3,10 @@
 #include "messages.hpp"
 #include "controls_state.hpp"
 #include <deque>
+#include <tuple>
+#include <chrono>
+#include <algorithm>
+#include <ranges>
 
 namespace Enflopio
 {
@@ -18,20 +22,44 @@ namespace Enflopio
 
         }
 
-        void ProcessControls(const ControlsState& controls)
+        void ProcessControls(const ControlsState& controls, double delta)
         {
-            if (m_sent.size() == 0 || m_sent.back() != controls)
+            if (m_history.size() == 0 || m_history.back().first.state != controls)
             {
-                m_sent.push_back(controls);
+                auto [id, timestamp] = NextIDTimestamp();
+                NetworkControls new_input = {controls, id, timestamp};
+                m_history.push_back({new_input, delta});
                 ServerMessages::Input message;
-                message.input = controls;
-
+                message.input = new_input;
                 m_network.Send(Serialize(message));
+                spdlog::debug("Sending input, id: {}", new_input.id);
+            }
+            else
+            {
+                m_history.back().second += delta;
             }
         }
 
+        void Receive(Player server_player, Player& client_player, NetworkControls::ID server_ack_id);
     private:
-        std::deque<ControlsState> m_sent;
+        std::pair<NetworkControls::ID, NetworkControls::Timestamp> NextIDTimestamp()
+        {
+            return {m_next_id++, std::chrono::high_resolution_clock::now()};
+        }
+
+        void ClearHistory(NetworkControls::ID id)
+        {
+            auto it = std::upper_bound(m_history.begin(), m_history.end(), id,
+                                       [](const auto& value, const auto& pair)
+                                       {
+                                           return value < pair.first.id;
+                                       });
+
+            m_history.erase(m_history.begin(), it);
+        }
+
+        NetworkControls::ID m_next_id = 0;
+        std::deque<std::pair<NetworkControls, double>> m_history;
         NetworkManager& m_network;
     };
 }

@@ -2,6 +2,7 @@
 #include "connection.hpp"
 #include "protocol.hpp"
 #include "world.hpp"
+#include "network_controls.hpp"
 
 namespace Enflopio
 {
@@ -18,9 +19,11 @@ namespace Enflopio
         void Handle(const ServerMessages::Input& msg) override;
 
         void Disconnect();
+        NetworkControls::ID LastInputId() const { return m_last_input_id; }
     private:
         Connection& m_connection;
         World& m_world;
         World::PlayerID m_current_player;
+        NetworkControls::ID m_last_input_id;
     };
 }

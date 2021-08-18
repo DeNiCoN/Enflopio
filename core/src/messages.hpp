@@ -1,7 +1,7 @@
 #pragma once
 #include "protocol.hpp"
 #include "world.hpp"
-#include "controls_state.hpp"
+#include "network_controls.hpp"
 
 #include <sstream>
 #include "serialization.hpp"
@@ -65,11 +65,12 @@ namespace Enflopio
             Message::ID id() const override { return static_cast<Message::ID>(Id::SYNC); }
 
             World::Players players;
+            NetworkControls::ID last_input_id;
 
             template <typename Archive>
             void serialize(Archive& ar)
             {
-                ar(players);
+                ar(players, last_input_id);
             }
         };
 
@@ -161,7 +162,7 @@ namespace Enflopio
         struct Input : public Base<Input>
         {
             Message::ID id() const override { return static_cast<Message::ID>(Id::INPT); }
-            ControlsState input;
+            NetworkControls input;
 
             template <typename Archive>
             void serialize(Archive& ar)

@@ -8,6 +8,7 @@ namespace Enflopio
     public:
         void Run();
         virtual ~GameLoop() = default;
+        double GetDesiredFps() const { return desired_fps; }
     protected:
         virtual void Init() = 0;
         virtual void PreUpdate() = 0;

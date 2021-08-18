@@ -15,6 +15,12 @@ namespace Enflopio
     {
     public:
         static App& Instance();
+
+        void AddDebugDraw(glm::vec2 position, glm::vec4 color);
+        void ClearDebugDraw()
+        {
+            m_debug_circles.clear();
+        }
     protected:
         void Init() final override;
         void PreUpdate() final override;
@@ -34,7 +40,7 @@ namespace Enflopio
         NetworkInputManager m_network_input;
         Camera m_camera;
 
-        std::vector<glm::vec2> m_debug_circles;
+        std::vector<std::pair<glm::vec2, glm::vec4>> m_debug_circles;
 
         void Resize(int width, int heigth);
 

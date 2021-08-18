@@ -26,7 +26,7 @@ namespace Enflopio
         }
 
         void Draw(double delay);
-        void Add(const World::Circle& circle);
+        void Add(const World::Circle& circle, glm::vec4 color = {1., 1., 1., 1.});
         void Clear() { m_circles.clear(); }
     private:
         CircleBatch();
@@ -36,6 +36,6 @@ namespace Enflopio
         glm::mat4 m_projection;
         glm::mat4 m_view;
 
-        World::Circles m_circles;
+        std::vector<std::pair<World::Circle, glm::vec4>> m_circles;
     };
 }
