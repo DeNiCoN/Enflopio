@@ -6,7 +6,6 @@
 #include <tuple>
 #include <chrono>
 #include <algorithm>
-#include <ranges>
 
 namespace Enflopio
 {
