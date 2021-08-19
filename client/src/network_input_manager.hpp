@@ -40,7 +40,8 @@ namespace Enflopio
             }
         }
 
-        void Receive(Player server_player, Player& client_player, NetworkControls::ID server_ack_id);
+        void Receive(Player server_player, Player& client_player,
+                     NetworkControls::ID server_ack_id, double input_delta);
     private:
         std::pair<NetworkControls::ID, NetworkControls::Timestamp> NextIDTimestamp()
         {
@@ -49,10 +50,10 @@ namespace Enflopio
 
         void ClearHistory(NetworkControls::ID id)
         {
-            auto it = std::upper_bound(m_history.begin(), m_history.end(), id,
-                                       [](const auto& value, const auto& pair)
+            auto it = std::lower_bound(m_history.begin(), m_history.end(), id,
+                                       [](const auto& move, const auto& value)
                                        {
-                                           return value < pair.first.id;
+                                           return move.first.id < value;
                                        });
 
             m_history.erase(m_history.begin(), it);
@@ -61,5 +62,6 @@ namespace Enflopio
         NetworkControls::ID m_next_id = 0;
         std::deque<std::pair<NetworkControls, double>> m_history;
         NetworkManager& m_network;
+        NetworkControls m_last;
     };
 }

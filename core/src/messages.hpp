@@ -66,11 +66,12 @@ namespace Enflopio
 
             World::Players players;
             NetworkControls::ID last_input_id;
+            double last_input_delta;
 
             template <typename Archive>
             void serialize(Archive& ar)
             {
-                ar(players, last_input_id);
+                ar(players, last_input_id, last_input_delta);
             }
         };
 

@@ -28,7 +28,8 @@ namespace Enflopio
             }
             else
             {
-                m_app.m_network_input.Receive(player, m_app.m_world.GetPlayer(id), msg.last_input_id);
+                m_app.m_network_input.Receive(player, m_app.m_world.GetPlayer(id),
+                                              msg.last_input_id, msg.last_input_delta);
             }
         }
     }

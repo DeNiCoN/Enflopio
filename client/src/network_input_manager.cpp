@@ -3,15 +3,19 @@
 
 namespace Enflopio
 {
-    void NetworkInputManager::Receive(Player server_player, Player& client_player, NetworkControls::ID server_ack_id)
+    void NetworkInputManager::Receive(Player server_player, Player& client_player,
+                                      NetworkControls::ID server_ack_id, double input_delta)
     {
         App::Instance().ClearDebugDraw();
         App::Instance().AddDebugDraw(server_player.position, {0., 1., 0., 1.});
         //TODO
         //Clear acknowledged history
         ClearHistory(server_ack_id);
-        spdlog::debug("Ack id: {}", server_ack_id);
+        spdlog::debug("Ack id: {}, history size: {}", server_ack_id, m_history.size());
         //Simulate server_player for history
+        if (m_history.size() > 0)
+            m_history.front().second -= input_delta;
+
         for (const auto& [move, delta] : m_history)
         {
             server_player.SetControls(move.state);
@@ -23,7 +27,9 @@ namespace Enflopio
             }
         }
         //Check/Update/Interpolate client_player
-        App::Instance().AddDebugDraw(server_player.position, {1., 0., 0., 1.});
+        client_player.position = server_player.position;
+        client_player.velocity = server_player.velocity;
+        client_player.acceleration = server_player.acceleration;
     }
 
 }

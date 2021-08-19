@@ -32,5 +32,6 @@ namespace Enflopio
         spdlog::debug("Input received, Player: {}, id: {}", m_current_player, msg.input.id);
         m_world.GetPlayer(m_current_player).SetControls(msg.input.state);
         m_last_input_id = msg.input.id;
+        m_last_input_delta = 0;
     }
 }

@@ -49,6 +49,7 @@ namespace Enflopio
     {
         //Update clock
         UpdateClock();
+        double delta = std::chrono::duration<double>(m_frame).count();
         if (m_lag > m_frame)
         {
             ProcessConnections();
@@ -58,7 +59,12 @@ namespace Enflopio
         while(m_lag > m_frame)
         {
             m_lag -= m_frame;
-            UpdateGame(std::chrono::duration<double>(m_frame).count());
+            UpdateGame(delta);
+
+            for (auto& [connection, protocol] : m_connections)
+            {
+                protocol.UpdateMove(delta);
+            }
         }
         std::this_thread::sleep_for(m_frame - m_lag);
     }
@@ -83,6 +89,8 @@ namespace Enflopio
             ClientMessages::Sync message;
             message.players = m_world.GetPlayers();
             message.last_input_id = protocol.LastInputId();
+            message.last_input_delta = protocol.LastInputDelta();
+            protocol.ResetMove();
             for (const auto& [id, player] : message.players)
             {
                 spdlog::info("{}: ({}, {})", id, player.position.x, player.position.y);
