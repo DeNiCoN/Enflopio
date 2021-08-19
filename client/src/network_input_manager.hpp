@@ -62,5 +62,6 @@ namespace Enflopio
         std::deque<std::pair<NetworkControls, double>> m_history;
         NetworkManager& m_network;
         NetworkControls m_last;
+        bool m_has_interpolation = false;
     };
 }

@@ -40,6 +40,10 @@ namespace Enflopio
         void SendSync();
 
         void InitClock();
+
+        void Init();
+        void Terminate();
+
         double UpdateClock();
 
         void UpdateGame(double delta);

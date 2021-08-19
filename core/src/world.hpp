@@ -68,6 +68,11 @@ namespace Enflopio
             return m_players;
         }
 
+        void ClearPlayers()
+        {
+            m_players.clear();
+        }
+
         void Update(double delta)
         {
             for (auto& [id, player] : m_players)
@@ -91,10 +96,10 @@ namespace Enflopio
             return m_size;
         }
 
+        Players m_players;
+        Circles m_circles;
     private:
         CirclePhysics m_physics;
-        Circles m_circles;
-        Players m_players;
         PlayerID m_next_player_id = 0;
 
         glm::vec2 m_size = {32., 32.};

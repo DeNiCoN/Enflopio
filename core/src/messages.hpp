@@ -7,6 +7,7 @@
 #include "serialization.hpp"
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/unordered_map.hpp>
+#include <cereal/types/vector.hpp>
 
 namespace Enflopio
 {
@@ -65,13 +66,14 @@ namespace Enflopio
             Message::ID id() const override { return static_cast<Message::ID>(Id::SYNC); }
 
             World::Players players;
+            World::Circles circles;
             NetworkControls::ID last_input_id;
             double last_input_delta;
 
             template <typename Archive>
             void serialize(Archive& ar)
             {
-                ar(players, last_input_id, last_input_delta);
+                ar(players, last_input_id, last_input_delta, circles);
             }
         };
 

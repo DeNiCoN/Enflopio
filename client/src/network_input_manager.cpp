@@ -1,5 +1,6 @@
 #include "network_input_manager.hpp"
 #include "app.hpp"
+#include "generic_processes.hpp"
 
 namespace Enflopio
 {
@@ -26,10 +27,23 @@ namespace Enflopio
                 simulate -= App::Instance().GetDesiredFps();
             }
         }
+
+        glm::vec2 delta_position = server_player.position - client_player.position;
         //Check/Update/Interpolate client_player
-        client_player.position = server_player.position;
-        client_player.velocity = server_player.velocity;
-        client_player.acceleration = server_player.acceleration;
+        if (std::abs(glm::length2(delta_position)) > 0.005 && !m_has_interpolation)
+        {
+            double interpolation_time = 1.0;
+            glm::vec2 scaled = delta_position / static_cast<float>(interpolation_time);
+            auto interpolate = Processes::Timed(interpolation_time,
+                                                [&client_player, scaled](double delta)
+                                                {
+                                                    client_player.position += scaled * static_cast<float>(delta);
+                                                });
+
+            App::Instance().GetProcessManager().Add(ToPtr(std::move(interpolate)));
+
+            m_has_interpolation = true;
+        }
     }
 
 }

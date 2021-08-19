@@ -8,6 +8,7 @@
 #include "network_manager.hpp"
 #include "protocol_impl.hpp"
 #include "network_input_manager.hpp"
+#include "process_manager.hpp"
 
 namespace Enflopio
 {
@@ -21,6 +22,10 @@ namespace Enflopio
         {
             m_debug_circles.clear();
         }
+
+
+        ProcessManager& GetProcessManager() { return m_process_manager; }
+        const ProcessManager& GetProcessManager() const { return m_process_manager; }
     protected:
         void Init() final override;
         void PreUpdate() final override;
@@ -34,11 +39,11 @@ namespace Enflopio
         ProtocolImpl m_protocol;
         NetworkManager m_network;
         World::PlayerID m_current_player_id;
-
         GLFWwindow* m_window;
         InputManager m_input_manager;
         NetworkInputManager m_network_input;
         Camera m_camera;
+        ProcessManager m_process_manager;
 
         std::vector<std::pair<glm::vec2, glm::vec4>> m_debug_circles;
 

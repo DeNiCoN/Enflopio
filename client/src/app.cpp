@@ -102,6 +102,8 @@ namespace Enflopio
             m_network_input.ProcessControls(current_controls, delta);
         }
 
+        //Update processes
+        m_process_manager.Update(delta);
         //Update simulation
         m_world.Update(delta);
         m_camera.Update(delta);

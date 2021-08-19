@@ -17,20 +17,18 @@ namespace Enflopio
 
     void ProtocolImpl::Handle(const ClientMessages::Sync& msg)
     {
-        for (const auto& [id, player] : msg.players)
+        if (m_app.m_world.HasPlayer(m_app.m_current_player_id))
         {
-            if (id != m_app.m_current_player_id)
-            {
-                if (!m_app.m_world.HasPlayer(id))
-                    m_app.m_world.AddPlayer(player, id);
-                else
-                    m_app.m_world.GetPlayer(id) = player;
-            }
-            else
-            {
-                m_app.m_network_input.Receive(player, m_app.m_world.GetPlayer(id),
-                                              msg.last_input_id, msg.last_input_delta);
-            }
+            Player backup = m_app.m_world.m_players.at(m_app.m_current_player_id);
+            m_app.m_world.m_players = msg.players;
+            m_app.m_world.m_players.at(m_app.m_current_player_id) = backup;
+
+            auto id = m_app.m_current_player_id;
+            m_app.m_network_input.Receive(msg.players.at(id), m_app.m_world.GetPlayer(id),
+                                          msg.last_input_id, msg.last_input_delta);
+
+            m_app.m_world.m_circles = msg.circles;
+            spdlog::debug("Sync, circles: {}", msg.circles.size());
         }
     }
 }

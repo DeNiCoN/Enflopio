@@ -2,6 +2,7 @@
 #include <chrono>
 #include <span>
 #include "messages.hpp"
+#include <glm/gtc/random.hpp>
 
 using namespace std;
 
@@ -14,10 +15,28 @@ namespace Enflopio
 
     }
 
-    void Server::Run()
+    void Server::Init()
     {
         StartListening();
         InitClock();
+
+        //TODO Read config, get world size, etc
+
+        for (int i = 0; i < 100; i++)
+        {
+            World::Circle n = {.position = glm::linearRand(glm::vec2(0, 0), m_world.GetSize())};
+            m_world.AddCircle(n);
+        }
+    }
+
+    void Server::Terminate()
+    {
+        StopListening();
+    }
+
+    void Server::Run()
+    {
+        Init();
 
         while (!ShouldClose())
         {
@@ -30,7 +49,7 @@ namespace Enflopio
             }
         }
 
-        StopListening();
+        Terminate();
     }
 
     void Server::StartListening()
@@ -88,6 +107,7 @@ namespace Enflopio
         {
             ClientMessages::Sync message;
             message.players = m_world.GetPlayers();
+            message.circles = m_world.GetCircles();
             message.last_input_id = protocol.LastInputId();
             message.last_input_delta = protocol.LastInputDelta();
             protocol.ResetMove();
