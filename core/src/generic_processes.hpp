@@ -2,7 +2,6 @@
 #include "process_manager.hpp"
 #include <variant>
 #include <array>
-#include <spdlog/spdlog.h>
 
 namespace Enflopio
 {
@@ -102,29 +101,30 @@ namespace Enflopio
             C m_callback;
         };
 
-        template<typename C>
+        template<typename C, typename S>
         class Timed : public Process
         {
         public:
-            Timed(double time, C callback) :
-                m_callback(callback), m_time(time)
+            Timed(double time, C callback, S stop_callback = []{}) :
+                m_callback(callback), m_time(time), m_stop_callback(stop_callback)
             {}
 
             void Update(double delta)
             {
                 if (m_time_passed >= m_time)
                 {
+                    m_stop_callback();
                     Stop();
                     return;
                 }
                 m_callback(delta);
                 m_time_passed += delta;
-                spdlog::debug("TimePassed: {}", m_time_passed);
             }
 
         private:
             C m_callback;
             double m_time;
+            S m_stop_callback;
             double m_time_passed = 0.;
         };
 

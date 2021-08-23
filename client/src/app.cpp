@@ -102,6 +102,10 @@ namespace Enflopio
             m_network_input.ProcessControls(current_controls, delta);
         }
 
+        for (auto& [id, interp] : m_interpolations)
+        {
+            interp.Update(delta);
+        }
         //Update processes
         m_process_manager.Update(delta);
         //Update simulation

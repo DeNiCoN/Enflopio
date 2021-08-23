@@ -2,6 +2,7 @@
 #include "app.hpp"
 #include <spdlog/spdlog.h>
 #include "messages.hpp"
+#include <tuple>
 
 namespace Enflopio
 {
@@ -13,6 +14,8 @@ namespace Enflopio
         m_app.m_current_player_id = m_app.m_world.AddPlayer(current_player, msg.player_id);
 
         m_app.m_camera.SetPosition(m_app.m_world.GetPlayer(m_app.m_current_player_id).position);
+
+        m_app.m_interpolations.try_emplace(m_app.m_current_player_id, m_app.m_world, m_app.m_current_player_id);
     }
 
     void ProtocolImpl::Handle(const ClientMessages::Sync& msg)
@@ -25,7 +28,8 @@ namespace Enflopio
 
             auto id = m_app.m_current_player_id;
             m_app.m_network_input.Receive(msg.players.at(id), m_app.m_world.GetPlayer(id),
-                                          msg.last_input_id, msg.last_input_delta);
+                                          msg.last_input_id, msg.last_input_delta,
+                                          m_app.m_interpolations.at(id));
 
             m_app.m_world.m_circles = msg.circles;
             spdlog::debug("Sync, circles: {}", msg.circles.size());

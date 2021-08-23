@@ -166,11 +166,12 @@ namespace Enflopio
         {
             Message::ID id() const override { return static_cast<Message::ID>(Id::INPT); }
             NetworkControls input;
+            double delta;
 
             template <typename Archive>
             void serialize(Archive& ar)
             {
-                ar(input);
+                ar(input, delta);
             }
         };
 

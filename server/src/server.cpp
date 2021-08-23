@@ -109,8 +109,7 @@ namespace Enflopio
             message.players = m_world.GetPlayers();
             message.circles = m_world.GetCircles();
             message.last_input_id = protocol.LastInputId();
-            message.last_input_delta = protocol.LastInputDelta();
-            protocol.ResetMove();
+            message.last_input_delta = protocol.InputDelta();
             for (const auto& [id, player] : message.players)
             {
                 spdlog::info("{}: ({}, {})", id, player.position.x, player.position.y);

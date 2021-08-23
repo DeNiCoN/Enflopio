@@ -9,6 +9,8 @@
 #include "protocol_impl.hpp"
 #include "network_input_manager.hpp"
 #include "process_manager.hpp"
+#include "interpolation_process.hpp"
+#include <unordered_map>
 
 namespace Enflopio
 {
@@ -34,17 +36,18 @@ namespace Enflopio
         bool ShouldStop() final override;
         void Terminate() final override;
     private:
-        App() : m_protocol(*this), m_network_input(m_network) {};
+        App() : m_protocol(*this), m_network_input(m_network, m_process_manager) {};
         World m_world;
         ProtocolImpl m_protocol;
         NetworkManager m_network;
         World::PlayerID m_current_player_id;
         GLFWwindow* m_window;
         InputManager m_input_manager;
+        ProcessManager m_process_manager;
         NetworkInputManager m_network_input;
         Camera m_camera;
-        ProcessManager m_process_manager;
 
+        std::unordered_map<World::PlayerID, InterpolationProcess> m_interpolations;
         std::vector<std::pair<glm::vec2, glm::vec4>> m_debug_circles;
 
         void Resize(int width, int heigth);

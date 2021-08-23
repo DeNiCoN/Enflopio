@@ -6,41 +6,45 @@
 #include <tuple>
 #include <chrono>
 #include <algorithm>
+#include "generic_processes.hpp"
+#include "interpolation_process.hpp"
 
 namespace Enflopio
 {
     //Class which responsible for sending and
     //processing outgoing and incoming player moves
     //Blame him for client player desync
+    //
+    //Intsdtst history is never empty
     class NetworkInputManager
     {
     public:
-        NetworkInputManager(NetworkManager& manager)
-            : m_network(manager)
-        {
-
-        }
+        NetworkInputManager(NetworkManager& manager, ProcessManager& process_manager);
 
         void ProcessControls(const ControlsState& controls, double delta)
         {
-            if (m_history.size() == 0 || m_history.back().first.state != controls)
+            assert(!m_history.empty());
+            if (m_history.back().first.state != controls)
             {
                 auto [id, timestamp] = NextIDTimestamp();
                 NetworkControls new_input = {controls, id, timestamp};
-                m_history.push_back({new_input, delta});
+
                 ServerMessages::Input message;
+                message.delta = m_history.back().second;
                 message.input = new_input;
+
                 m_network.Send(Serialize(message));
-                spdlog::debug("Sending input, id: {}", new_input.id);
+                spdlog::debug("Sending input, id: {}, delta: {}", new_input.id, message.delta);
+
+                m_history.push_back({new_input, 0});
             }
-            else
-            {
-                m_history.back().second += delta;
-            }
+
+            m_history.back().second += delta;
         }
 
         void Receive(Player server_player, Player& client_player,
-                     NetworkControls::ID server_ack_id, double input_delta);
+                     NetworkControls::ID server_ack_id, double input_delta,
+                     InterpolationProcess& interpolation);
     private:
         std::pair<NetworkControls::ID, NetworkControls::Timestamp> NextIDTimestamp()
         {
@@ -61,7 +65,7 @@ namespace Enflopio
         NetworkControls::ID m_next_id = 0;
         std::deque<std::pair<NetworkControls, double>> m_history;
         NetworkManager& m_network;
+        ProcessManager& m_process_manager;
         NetworkControls m_last;
-        bool m_has_interpolation = false;
     };
 }

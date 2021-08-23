@@ -29,9 +29,9 @@ namespace Enflopio
 
     void ProtocolImpl::Handle(const ServerMessages::Input &msg)
     {
-        spdlog::debug("Input received, Player: {}, id: {}", m_current_player, msg.input.id);
-        m_world.GetPlayer(m_current_player).SetControls(msg.input.state);
-        m_last_input_id = msg.input.id;
-        m_last_input_delta = 0;
+        spdlog::debug("Input received, Player: {}, id: {}, delta: {}", m_current_player, msg.input.id, msg.delta);
+        m_history.push_back({msg.input.state, msg.delta});
+        if (m_history.size() == 1)
+            m_world.GetPlayer(m_current_player).SetControls(m_history[1].first);
     }
 }
