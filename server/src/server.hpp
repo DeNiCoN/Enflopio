@@ -28,6 +28,10 @@ namespace Enflopio
         void PendingConnect(Connection::Ptr);
         void PendingDisconnect(Connection::Ptr);
     private:
+        static constexpr std::size_t NUM_BACKTRACE_LOG_MESSAGES = 128;
+
+        void SetupLogging();
+
         void StartListening();
         void StopListening();
 

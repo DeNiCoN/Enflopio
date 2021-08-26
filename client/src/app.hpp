@@ -29,6 +29,7 @@ namespace Enflopio
         ProcessManager& GetProcessManager() { return m_process_manager; }
         const ProcessManager& GetProcessManager() const { return m_process_manager; }
     protected:
+        void SetupLogging();
         void Init() final override;
         void PreUpdate() final override;
         void Update(double delta) final override;
@@ -36,6 +37,8 @@ namespace Enflopio
         bool ShouldStop() final override;
         void Terminate() final override;
     private:
+        static constexpr std::size_t NUM_BACKTRACE_LOG_MESSAGES = 128;
+
         App() : m_protocol(*this), m_network_input(m_network, m_process_manager) {};
         World m_world;
         ProtocolImpl m_protocol;

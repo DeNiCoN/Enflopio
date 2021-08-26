@@ -3,6 +3,8 @@
 #include <span>
 #include "messages.hpp"
 #include <glm/gtc/random.hpp>
+#include <spdlog/async.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 using namespace std;
 
@@ -15,8 +17,29 @@ namespace Enflopio
 
     }
 
+    void Server::SetupLogging()
+    {
+        auto frame = spdlog::stdout_color_mt<spdlog::async_factory>("frame");
+        auto network = spdlog::stdout_color_mt<spdlog::async_factory>("network");
+
+        frame->enable_backtrace(NUM_BACKTRACE_LOG_MESSAGES);
+        frame->set_level(spdlog::level::warn);
+
+        network->enable_backtrace(NUM_BACKTRACE_LOG_MESSAGES);
+        network->set_level(spdlog::level::warn);
+
+        std::set_terminate([]
+        {
+            spdlog::get("frame")->dump_backtrace();
+            spdlog::get("network")->dump_backtrace();
+            std::abort();
+        });
+    }
+
     void Server::Init()
     {
+        SetupLogging();
+
         StartListening();
         InitClock();
 

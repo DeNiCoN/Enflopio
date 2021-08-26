@@ -17,6 +17,12 @@ target_link_libraries(core PUBLIC
   cereal::cereal
   )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  find_library(SEGFAULT_LIBRARY NAMES SegFault REQUIRED)
+  target_link_libraries(core PUBLIC ${SEGFAULT_LIBRARY})
+  target_compile_options(core PUBLIC "-Wl" "-no-as-needed")
+endif()
+
 target_include_directories(core PUBLIC src/)
 
 add_library(enflopio::core ALIAS core)

@@ -3,6 +3,8 @@
 #include "gl_includes.hpp"
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
+#include <spdlog/async.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include "circle_batch.hpp"
 #include "messages.hpp"
 
@@ -39,8 +41,29 @@ namespace Enflopio
         glViewport(0, 0, width, height);
     }
 
+    void App::SetupLogging()
+    {
+        auto frame = spdlog::stdout_color_mt<spdlog::async_factory>("frame");
+        auto network = spdlog::stdout_color_mt<spdlog::async_factory>("network");
+
+        frame->enable_backtrace(NUM_BACKTRACE_LOG_MESSAGES);
+        frame->set_level(spdlog::level::warn);
+
+        network->enable_backtrace(NUM_BACKTRACE_LOG_MESSAGES);
+        network->set_level(spdlog::level::warn);
+
+        std::set_terminate([]
+        {
+            spdlog::get("frame")->dump_backtrace();
+            spdlog::get("network")->dump_backtrace();
+            std::abort();
+        });
+    }
+
     void App::Init()
     {
+        SetupLogging();
+
         glfwSetErrorCallback(error_callback);
         if (!glfwInit())
             exit(EXIT_FAILURE);
