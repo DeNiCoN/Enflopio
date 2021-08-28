@@ -18,9 +18,11 @@ target_link_libraries(core PUBLIC
   )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  find_library(SEGFAULT_LIBRARY NAMES SegFault REQUIRED)
-  target_link_libraries(core PUBLIC ${SEGFAULT_LIBRARY})
-  target_compile_options(core PUBLIC "-Wl" "-no-as-needed")
+  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    find_library(SEGFAULT_LIBRARY NAMES SegFault REQUIRED)
+    target_link_libraries(core PUBLIC ${SEGFAULT_LIBRARY})
+    target_link_options(core PUBLIC "-Wl,--no-as-needed" "-rdynamic")
+    endif()
 endif()
 
 target_include_directories(core PUBLIC src/)

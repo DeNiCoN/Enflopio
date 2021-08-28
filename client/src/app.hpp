@@ -14,7 +14,7 @@
 
 namespace Enflopio
 {
-    class App final : public GameLoop
+    class App final : public GameLoop<App>
     {
     public:
         static App& Instance();
@@ -28,14 +28,16 @@ namespace Enflopio
 
         ProcessManager& GetProcessManager() { return m_process_manager; }
         const ProcessManager& GetProcessManager() const { return m_process_manager; }
-    protected:
+
         void SetupLogging();
-        void Init() final override;
-        void PreUpdate() final override;
-        void Update(double delta) final override;
-        void Render(double delay) final override;
-        bool ShouldStop() final override;
-        void Terminate() final override;
+        void Init();
+        void PreUpdate();
+        void PostUpdate();
+        void Simulate(double delta);
+        void RenderUpdate();
+        void Render(double delay);
+        bool ShouldStop();
+        void Terminate();
     private:
         static constexpr std::size_t NUM_BACKTRACE_LOG_MESSAGES = 128;
 
@@ -49,6 +51,8 @@ namespace Enflopio
         ProcessManager m_process_manager;
         NetworkInputManager m_network_input;
         Camera m_camera;
+
+        std::uint64_t m_tick = 0;
 
         std::unordered_map<World::PlayerID, InterpolationProcess> m_interpolations;
         std::vector<std::pair<glm::vec2, glm::vec4>> m_debug_circles;

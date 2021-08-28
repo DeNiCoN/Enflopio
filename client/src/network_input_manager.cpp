@@ -31,8 +31,8 @@ namespace Enflopio
             double simulate = delta;
             while (simulate > 0)
             {
-                server_player.Update(App::Instance().GetDesiredFps());
-                simulate -= App::Instance().GetDesiredFps();
+                server_player.Update(App::Instance().GetDesiredDelta());
+                simulate -= App::Instance().GetDesiredDelta();
             }
         }
 

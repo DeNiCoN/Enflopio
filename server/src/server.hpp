@@ -31,7 +31,6 @@ namespace Enflopio
         static constexpr std::size_t NUM_BACKTRACE_LOG_MESSAGES = 128;
 
         void SetupLogging();
-
         void StartListening();
         void StopListening();
 

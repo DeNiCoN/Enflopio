@@ -7,6 +7,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include "circle_batch.hpp"
 #include "messages.hpp"
+#include <signal.h>
 
 namespace Enflopio
 {
@@ -43,8 +44,8 @@ namespace Enflopio
 
     void App::SetupLogging()
     {
-        auto frame = spdlog::stdout_color_mt<spdlog::async_factory>("frame");
-        auto network = spdlog::stdout_color_mt<spdlog::async_factory>("network");
+        auto frame = spdlog::stdout_color_mt("frame");
+        auto network = spdlog::stdout_color_mt("network");
 
         frame->enable_backtrace(NUM_BACKTRACE_LOG_MESSAGES);
         frame->set_level(spdlog::level::warn);
@@ -54,7 +55,9 @@ namespace Enflopio
 
         std::set_terminate([]
         {
+            spdlog::get("frame")->flush();
             spdlog::get("frame")->dump_backtrace();
+            spdlog::get("network")->flush();
             spdlog::get("network")->dump_backtrace();
             std::abort();
         });
@@ -64,9 +67,12 @@ namespace Enflopio
     {
         SetupLogging();
 
+        spdlog::info("Logging set");
+
         glfwSetErrorCallback(error_callback);
         if (!glfwInit())
             exit(EXIT_FAILURE);
+        spdlog::info("Glfw initialized");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
         m_window = glfwCreateWindow(800, 600, "Simple example", NULL, NULL);
@@ -75,6 +81,7 @@ namespace Enflopio
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
+        spdlog::info("Window created");
         glfwSetWindowSizeCallback(m_window, window_size_callback);
 
         m_input_manager.Init(m_window);
@@ -93,26 +100,28 @@ namespace Enflopio
         Resize(width, height);
 
         m_network.Init();
+        spdlog::info("Netword initialized");
         m_network.Send(Serialize(ServerMessages::Hello()));
+        spdlog::info("Initialization finished");
     }
 
     void App::PreUpdate()
     {
+        spdlog::get("frame")->info("Frame {} stared", m_tick);
 
-    }
-
-    void App::Update(double delta)
-    {
-        CircleBatch::Instance().Clear();
-
-        //process new messages
+        spdlog::get("frame")->info("Processing network messages");
         while (m_network.HasNextMessage())
         {
             auto message_ptr = ClientMessages::Deserialize(m_network.NextMessage());
             message_ptr->Accept(m_protocol);
         }
+    }
 
-        //Update controls
+    void App::Simulate(double delta)
+    {
+        spdlog::get("frame")->info("Simulation");
+
+        spdlog::get("frame")->info("Updating controls");
         m_input_manager.Update();
         auto current_controls = m_input_manager.GetCurrent();
 
@@ -125,17 +134,39 @@ namespace Enflopio
             m_network_input.ProcessControls(current_controls, delta);
         }
 
+        spdlog::get("frame")->info("Interpolating");
         for (auto& [id, interp] : m_interpolations)
         {
             interp.Update(delta);
         }
+        spdlog::get("frame")->info("Running world update");
         //Update processes
         m_process_manager.Update(delta);
         //Update simulation
         m_world.Update(delta);
         m_camera.Update(delta);
+
         if (m_world.HasPlayer(m_current_player_id))
+        {
+            spdlog::get("frame")->info("Moving camera");
             m_camera.Move(m_world.GetPlayer(m_current_player_id).position);
+        }
+    }
+
+    void App::PostUpdate()
+    {
+        spdlog::get("frame")->info("Frame {} finished", m_tick);
+        m_tick++;
+        if (m_tick == 100)
+        {
+            raise(SIGSEGV);
+        }
+    }
+
+    void App::RenderUpdate()
+    {
+        spdlog::get("frame")->info("Render update", m_tick);
+        CircleBatch::Instance().Clear();
 
         //Add to Render
         for (const auto& circle : m_world.GetCircles())
@@ -160,6 +191,7 @@ namespace Enflopio
 
     void App::Render(double delay)
     {
+        spdlog::get("frame")->info("Render", m_tick);
         glClear(GL_COLOR_BUFFER_BIT);
 
         CircleBatch::Instance().SetView(m_camera.CalculateView(delay));

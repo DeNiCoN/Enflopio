@@ -56,7 +56,7 @@ namespace Enflopio
             auto it = std::lower_bound(m_history.begin(), m_history.end(), id,
                                        [](const auto& move, const auto& value)
                                        {
-                                           return move.third.id < value;
+                                           return move.first.id < value;
                                        });
 
             m_history.erase(m_history.begin(), it);
