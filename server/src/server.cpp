@@ -19,8 +19,8 @@ namespace Enflopio
 
     void Server::SetupLogging()
     {
-        auto frame = spdlog::stdout_color_mt<spdlog::async_factory>("frame");
-        auto network = spdlog::stdout_color_mt<spdlog::async_factory>("network");
+        auto frame = spdlog::stdout_color_mt("frame");
+        auto network = spdlog::stdout_color_mt("network");
 
         frame->enable_backtrace(NUM_BACKTRACE_LOG_MESSAGES);
         frame->set_level(spdlog::level::warn);
@@ -41,7 +41,6 @@ namespace Enflopio
         SetupLogging();
 
         StartListening();
-        InitClock();
 
         //TODO Read config, get world size, etc
 
@@ -57,24 +56,6 @@ namespace Enflopio
         StopListening();
     }
 
-    void Server::Run()
-    {
-        Init();
-
-        while (!ShouldClose())
-        {
-            m_tick++;
-            Frame();
-
-            if (m_tick % 4 == 0)
-            {
-                SendSync();
-            }
-        }
-
-        Terminate();
-    }
-
     void Server::StartListening()
     {
         m_tcp_listener.StartListening();
@@ -87,28 +68,10 @@ namespace Enflopio
         m_tcp_listener.StopListening();
     }
 
-    void Server::Frame()
+    void Server::PreSimulate(double delta)
     {
-        //Update clock
-        UpdateClock();
-        double delta = std::chrono::duration<double>(m_frame).count();
-        if (m_lag > m_frame)
-        {
-            ProcessConnections();
-            ProcessMessages();
-        }
-
-        while(m_lag > m_frame)
-        {
-            m_lag -= m_frame;
-            UpdateGame(delta);
-
-            for (auto& [connection, protocol] : m_connections)
-            {
-                protocol.UpdateMove(delta);
-            }
-        }
-        std::this_thread::sleep_for(m_frame - m_lag);
+        ProcessConnections();
+        ProcessMessages();
     }
 
     void Server::ProcessMessages()
@@ -141,24 +104,22 @@ namespace Enflopio
         }
     }
 
-    void Server::UpdateGame(double delta)
+    void Server::Simulate(double delta)
     {
+        for (auto& [connection, protocol] : m_connections)
+        {
+            protocol.UpdateMove(delta);
+        }
+
         m_world.Update(delta);
     }
 
-    double Server::UpdateClock()
+    void Server::PostSimulate(double delta)
     {
-        m_last_update = m_current_update;
-        m_current_update = chrono::high_resolution_clock::now();
-        auto delta = m_current_update - m_last_update;
-        m_lag += delta;
-        return chrono::duration<double>(delta).count();
-    }
-
-    void Server::InitClock()
-    {
-        m_current_update = chrono::high_resolution_clock::now();
-        m_lag = std::chrono::seconds(0);
+        if (GetSimulationTick() % 4 == 0)
+        {
+            SendSync();
+        }
     }
 
     void Server::PendingConnect(Connection::Ptr ptr)

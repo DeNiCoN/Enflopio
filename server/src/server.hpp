@@ -6,24 +6,24 @@
 #include "websocket_connection_listener.hpp"
 #include "protocol_impl.hpp"
 #include "world.hpp"
+#include "game_loop.hpp"
 
 namespace Enflopio
 {
-    class Server
+    class Server : private GameLoop<Server>
     {
     public:
+        using GameLoop<Server>::Run;
+        friend class GameLoop<Server>;
+
         struct Options;
         explicit Server(const Options& options);
-
-        void Run();
 
         struct Options
         {
             std::uint16_t tcp_port = 25325;
             std::uint16_t websocket_port = 25326;
         };
-
-        unsigned long GetTick() const { return m_tick; }
 
         void PendingConnect(Connection::Ptr);
         void PendingDisconnect(Connection::Ptr);
@@ -37,29 +37,16 @@ namespace Enflopio
         void NewConnect(Connection::Ptr);
         void Disconnect(Connection::Ptr);
 
-        void Frame();
         void ProcessMessages();
         void ProcessConnections();
         void SendSync();
 
-        void InitClock();
-
         void Init();
+        void PreSimulate(double delta);
+        void Simulate(double delta);
+        void PostSimulate(double delta);
         void Terminate();
-
-        double UpdateClock();
-
-        void UpdateGame(double delta);
-        bool ShouldClose() const { return false; }
-
-        using TimePoint = std::chrono::high_resolution_clock::time_point;
-        using Duration = std::chrono::high_resolution_clock::duration;
-        TimePoint m_last_update;
-        Duration m_lag;
-        Duration m_frame = std::chrono::duration_cast<Duration>(std::chrono::duration<double>(1.0/60.0));
-        TimePoint m_current_update;
-
-        unsigned long m_tick = 0;
+        bool ShouldSleep() { return true; }
 
         std::unordered_map<Connection::Ptr, ProtocolImpl> m_connections;
         std::mutex m_connections_mutex;

@@ -34,7 +34,7 @@ namespace Enflopio
         void PreUpdate();
         void PostUpdate();
         void Simulate(double delta);
-        void RenderUpdate();
+        void PostSimulate(double delta);
         void Render(double delay);
         bool ShouldStop();
         void Terminate();

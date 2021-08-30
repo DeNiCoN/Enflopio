@@ -119,7 +119,7 @@ namespace Enflopio
 
     void App::Simulate(double delta)
     {
-        spdlog::get("frame")->info("Simulation");
+        spdlog::get("frame")->info("Simulation {}", GetSimulationTick());
 
         spdlog::get("frame")->info("Updating controls");
         m_input_manager.Update();
@@ -127,7 +127,6 @@ namespace Enflopio
 
         if (m_world.HasPlayer(m_current_player_id))
         {
-            //Client side prediction. Kind of, it's not done yet
             m_world.GetPlayer(m_current_player_id).SetControls(current_controls);
 
             //If controls changed, send them to server
@@ -139,10 +138,9 @@ namespace Enflopio
         {
             interp.Update(delta);
         }
+
         spdlog::get("frame")->info("Running world update");
-        //Update processes
         m_process_manager.Update(delta);
-        //Update simulation
         m_world.Update(delta);
         m_camera.Update(delta);
 
@@ -155,15 +153,10 @@ namespace Enflopio
 
     void App::PostUpdate()
     {
-        spdlog::get("frame")->info("Frame {} finished", m_tick);
-        m_tick++;
-        if (m_tick == 100)
-        {
-            raise(SIGSEGV);
-        }
+        spdlog::get("frame")->info("Frame {} finished", GetFrameTick());
     }
 
-    void App::RenderUpdate()
+    void App::PostSimulate(double delta)
     {
         spdlog::get("frame")->info("Render update", m_tick);
         CircleBatch::Instance().Clear();

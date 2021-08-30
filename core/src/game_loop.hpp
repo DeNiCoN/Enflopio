@@ -1,5 +1,6 @@
 #pragma once
 #include <chrono>
+#include <thread>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -12,12 +13,7 @@ namespace Enflopio
     class GameLoop
     {
     public:
-
-        static T& Instance()
-        {
-            static T instance;
-            return instance;
-        }
+        //friend T;
 
         void Run()
         {
@@ -37,6 +33,16 @@ namespace Enflopio
 #endif
         }
 
+        double GetDesiredDelta() { return std::chrono::duration<double>(m_desired_delta).count(); }
+        std::uint64_t GetSimulationTick() { return m_simulation_tick; }
+        std::uint64_t GetFrameTick() { return m_frame_tick; }
+    private:
+        static T& Instance()
+        {
+            static T instance;
+            return instance;
+        }
+
         void InitClock()
         {
             m_last_update = std::chrono::high_resolution_clock::now();
@@ -50,40 +56,55 @@ namespace Enflopio
         }
 
         bool ShouldStop() { return false; }
+        bool ShouldSleep() { return false; }
         void PreUpdate() {};
-        void PostUpdate() {};
+        void PreSimulate(double delta) {};
         void Simulate(double delta) {};
-        void RenderUpdate() {};
+        void PostSimulate(double delta) {};
         void Render(double delay) {};
+        void PostUpdate() {};
         void Terminate() {};
 
-        double GetDesiredDelta() { return std::chrono::duration<double>(m_desired_delta).count(); }
-    private:
+
         using TimePoint = std::chrono::high_resolution_clock::time_point;
         using Duration = std::chrono::high_resolution_clock::duration;
         TimePoint m_last_update;
         Duration m_desired_delta = std::chrono::duration_cast<Duration>(std::chrono::duration<double>(1.0/60.0));
         Duration m_lag;
         TimePoint m_current_update;
+        std::uint64_t m_frame_tick = 0;
+        std::uint64_t m_simulation_tick = 0;
 
         void Frame()
         {
+            using namespace std::chrono;
+
             AsT()->UpdateClock();
-            bool render_update_needed = m_lag > m_desired_delta;
+            bool simulation_needed = m_lag > m_desired_delta;
 
             AsT()->PreUpdate();
+
+            if (simulation_needed)
+                AsT()->PreSimulate(duration<double>(m_desired_delta).count());
 
             while (m_lag > m_desired_delta)
             {
                 m_lag -= m_desired_delta;
-                AsT()->Simulate(std::chrono::duration<double>(m_desired_delta).count());
+                AsT()->Simulate(duration<double>(m_desired_delta).count());
+
+                m_simulation_tick++;
             }
 
-            if (render_update_needed)
-                AsT()->RenderUpdate();
+            if (simulation_needed)
+                AsT()->PostSimulate(duration<double>(m_desired_delta).count());
 
-            AsT()->Render(std::chrono::duration<double>(m_lag).count());
+            AsT()->Render(duration<double>(m_lag).count());
             AsT()->PostUpdate();
+
+            m_frame_tick++;
+
+            if (AsT()->ShouldSleep())
+                std::this_thread::sleep_for(m_desired_delta - m_lag);
         }
 
         static void main_loop()
