@@ -11,8 +11,7 @@ using namespace std;
 namespace Enflopio
 {
     Server::Server(const Options& options)
-        : m_tcp_listener(options.tcp_port, *this),
-          m_websocket_listener(options.websocket_port, *this)
+        : m_connection_manager(options.tcp_port, options.websocket_port)
     {
 
     }
@@ -40,7 +39,7 @@ namespace Enflopio
     {
         SetupLogging();
 
-        StartListening();
+        m_connection_manager.StartListening();
 
         //TODO Read config, get world size, etc
 
@@ -53,19 +52,7 @@ namespace Enflopio
 
     void Server::Terminate()
     {
-        StopListening();
-    }
-
-    void Server::StartListening()
-    {
-        m_tcp_listener.StartListening();
-        m_websocket_listener.StartListening();
-    }
-
-    void Server::StopListening()
-    {
-        m_websocket_listener.StopListening();
-        m_tcp_listener.StopListening();
+        m_connection_manager.StopListening();
     }
 
     void Server::PreSimulate(double delta)
