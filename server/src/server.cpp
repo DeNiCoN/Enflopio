@@ -45,7 +45,10 @@ namespace Enflopio
 
         for (int i = 0; i < 100; i++)
         {
-            World::Circle n = {.position = glm::linearRand(glm::vec2(0, 0), m_world.GetSize())};
+            World::Circle n = {
+                .position = glm::linearRand(glm::vec2(0, 0), m_world.GetSize())
+            };
+
             m_world.AddCircle(n);
         }
     }
@@ -61,6 +64,19 @@ namespace Enflopio
         ProcessMessages();
     }
 
+    void Server::ProcessConnections()
+    {
+        m_connection_manager.ProcessConnections(
+            [this](Connection::Ptr ptr)
+            {
+                NewConnect(std::move(ptr));
+            },
+            [this](Connection::Ptr ptr)
+            {
+                Disconnect(std::move(ptr));
+            });
+    }
+
     void Server::ProcessMessages()
     {
         for (auto& [connection, protocol] : m_connections)
@@ -68,7 +84,8 @@ namespace Enflopio
             while(connection->HasNext())
             {
                 spdlog::debug("New message");
-                auto message = ServerMessages::Deserialize(connection->ReadNext());
+                auto message =
+                    ServerMessages::Deserialize(connection->ReadNext());
                 message->Accept(protocol);
             }
         }
@@ -85,7 +102,8 @@ namespace Enflopio
             message.last_input_delta = protocol.InputDelta();
             for (const auto& [id, player] : message.players)
             {
-                spdlog::info("{}: ({}, {})", id, player.position.x, player.position.y);
+                spdlog::info("{}: ({}, {})",
+                             id, player.position.x, player.position.y);
             }
             connection->Send(Serialize(message));
         }
@@ -109,23 +127,12 @@ namespace Enflopio
         }
     }
 
-    void Server::PendingConnect(Connection::Ptr ptr)
-    {
-        std::scoped_lock lock(m_connections_mutex);
-        m_pending_connect.push_back(std::move(ptr));
-    }
-
-    void Server::PendingDisconnect(Connection::Ptr ptr)
-    {
-        std::scoped_lock lock(m_connections_mutex);
-        m_pending_disconnect.push_back(std::move(ptr));
-    }
-
     void Server::NewConnect(Connection::Ptr connection)
     {
         spdlog::debug("New connection");
         ProtocolImpl protocol(*connection, m_world);
-        m_connections.insert(std::make_pair(std::move(connection), std::move(protocol)));
+        m_connections.insert(std::make_pair(std::move(connection),
+                                            std::move(protocol)));
     }
 
     void Server::Disconnect(Connection::Ptr connection)
@@ -134,22 +141,5 @@ namespace Enflopio
         auto it = m_connections.find(connection);
         it->second.Disconnect();
         m_connections.erase(connection);
-    }
-
-    void Server::ProcessConnections()
-    {
-        std::scoped_lock lock(m_connections_mutex);
-        for (auto& ptr : m_pending_connect)
-        {
-            NewConnect(std::move(ptr));
-        }
-        m_pending_connect.clear();
-
-        for (auto& ptr : m_pending_disconnect)
-        {
-            Disconnect(std::move(ptr));
-        }
-        m_pending_disconnect.clear();
-
     }
 }
