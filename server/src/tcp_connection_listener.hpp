@@ -50,8 +50,11 @@ namespace Enflopio
         void StartAccept(NewCallback n_callback, DisconnectCallback d_callback)
         {
             spdlog::info("Listening tcp on {} port started", m_port);
-            m_acceptor.async_accept([&](const boost::system::error_code& error,
-                                        boost::asio::ip::tcp::socket socket)
+            m_acceptor.async_accept([this,
+                                     n_callback = std::move(n_callback),
+                                     d_callback = std::move(d_callback)]
+                                    (const boost::system::error_code& error,
+                                     boost::asio::ip::tcp::socket socket)
             {
                 if (!error)
                 {
@@ -59,7 +62,7 @@ namespace Enflopio
                     auto connection =
                         std::make_shared<TCPConnection>(
                             std::move(socket), m_io_service,
-                            [&](Connection::Ptr ptr)
+                            [d_callback](Connection::Ptr ptr)
                             {
                                 d_callback(std::move(ptr));
                             });

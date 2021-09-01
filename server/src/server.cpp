@@ -83,7 +83,7 @@ namespace Enflopio
         {
             while(connection->HasNext())
             {
-                spdlog::debug("New message");
+                spdlog::get("network")->info("New message");
                 auto message =
                     ServerMessages::Deserialize(connection->ReadNext());
                 message->Accept(protocol);
@@ -129,7 +129,7 @@ namespace Enflopio
 
     void Server::NewConnect(Connection::Ptr connection)
     {
-        spdlog::debug("New connection");
+        spdlog::get("network")->info("New connection");
         ProtocolImpl protocol(*connection, m_world);
         m_connections.insert(std::make_pair(std::move(connection),
                                             std::move(protocol)));
@@ -137,7 +137,8 @@ namespace Enflopio
 
     void Server::Disconnect(Connection::Ptr connection)
     {
-        spdlog::debug("Disconnect");
+        //TODO Add name
+        spdlog::get("network")->info("Disconnect");
         auto it = m_connections.find(connection);
         it->second.Disconnect();
         m_connections.erase(connection);

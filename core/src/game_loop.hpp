@@ -13,7 +13,6 @@ namespace Enflopio
     class GameLoop
     {
     public:
-        //friend T;
 
         void Run()
         {
