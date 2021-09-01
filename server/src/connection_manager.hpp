@@ -14,9 +14,18 @@ namespace Enflopio
 
         void StartListening()
         {
-            m_tcp_listener.StartListening(
-                [this]());
-            m_websocket_listener.StartListening();
+            auto pending_connect = [this](Connection::Ptr ptr)
+            {
+                PendingConnect(std::move(ptr));
+            };
+
+            auto pending_disconnect = [this](Connection::Ptr ptr)
+            {
+                PendingDisconnect(std::move(ptr));
+            };
+
+            m_tcp_listener.StartListening(pending_connect, pending_disconnect);
+            m_websocket_listener.StartListening(pending_connect, pending_disconnect);
         }
 
         void StopListening()

@@ -1,22 +1,74 @@
 #pragma once
 #include <cstdint>
 #include <thread>
+#include "websocket_connection.hpp"
+#include <spdlog/spdlog.h>
 
 namespace Enflopio
 {
-    class Server;
     class WebSocketConnectionListener
     {
     public:
-        WebSocketConnectionListener(std::uint16_t port, Server& server);
+        WebSocketConnectionListener(std::uint16_t port)
+            : m_port(port)
+        {
+        }
+
         ~WebSocketConnectionListener()
         {
             StopListening();
         }
-        void StartListening();
-        void StopListening();
+
+        template<std::invocable<Connection::Ptr> NewCallback,
+                 std::invocable<Connection::Ptr> DisconnectCallback>
+        void StartListening(NewCallback n_callback,
+                            DisconnectCallback d_callback)
+        {
+            m_listen_thread = std::thread([&]
+            {
+                spdlog::debug("Websocket server thread started");
+
+                uWS::App().ws<WebSocketConnection::Ptr>("/*", {
+                        .open = [&](auto* ws)
+                        {
+                            spdlog::info("New websocket connection {}",
+                                         ws->getRemoteAddressAsText());
+                            *ws->getUserData() = std::make_shared<WebSocketConnection>(ws, *uWS::Loop::get());
+                            n_callback(*ws->getUserData());
+                        },
+                        .message = [&](auto *ws, std::string_view message, uWS::OpCode opCode)
+                        {
+                            (*ws->getUserData())->NewMessage(std::string(message));
+                        },
+                        .close = [&](auto *ws, int code, std::string_view message)
+                        {
+                            d_callback(*ws->getUserData());
+                        }
+                    }).listen(m_port, [&](auto *listen_socket)
+                    {
+                        if (!listen_socket)
+                        {
+                            spdlog::critical("Failed to start listening websocket on {} port", m_port);
+                            throw std::exception();
+                        }
+                        else
+                        {
+                            spdlog::info("Listening websocket on {} port started", m_port);
+                        }
+                    }).run();
+                spdlog::debug("Websocket server thread finished");
+            });
+
+        }
+
+        void StopListening()
+        {
+            if (m_listen_thread.joinable())
+            {
+                m_listen_thread.join();
+            }
+        }
     private:
-        Server& m_server;
         std::uint16_t m_port;
         std::thread m_listen_thread;
     };
