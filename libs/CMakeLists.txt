@@ -62,6 +62,7 @@ if (server_ENABLED)
     uwebsockets/[>=19.2.0]
     boost/[>=1.76.0]
     spdlog/[>=1.8.5]
+    replxx/[>=0.0.3]
     )
 endif()
 

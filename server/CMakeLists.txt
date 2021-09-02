@@ -11,9 +11,11 @@ if (server_ENABLED)
   find_package(uwebsockets)
   find_package(Boost COMPONENTS REQUIRED system)
   find_package(spdlog)
+  find_package(replxx)
 
   target_link_libraries(server
     enflopio::core
+    replxx::replxx
     uwebsockets::uwebsockets
     Boost::Boost
     spdlog::spdlog
