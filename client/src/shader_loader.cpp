@@ -1,13 +1,13 @@
 #include "shader_loader.hpp"
 #include "gl_includes.hpp"
 #include <vector>
-#include <spdlog/spdlog.h>
+#include "utils/logging.hpp"
 
 namespace Enflopio
 {
     static void error_callback(int error, const char *description)
     {
-        spdlog::error("Error: {}\n", description);
+        logging::render->error("Error: {}\n", description);
     }
 
     void check_error(GLuint shader)

@@ -6,6 +6,7 @@
 #include <spdlog/async.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include "repl_sink.hpp"
+#include "utils/logging.hpp"
 
 using namespace std;
 
@@ -44,6 +45,9 @@ namespace Enflopio
 
         spdlog::register_logger(frame);
         spdlog::register_logger(network);
+
+        logging::frame = frame;
+        logging::net = network;
     }
 
     void Server::Init()
@@ -51,6 +55,7 @@ namespace Enflopio
         m_repl->StartInput();
 
         SetupLogging();
+        spdlog::info("Logging set");
 
         m_connection_manager.StartListening();
 
@@ -77,7 +82,7 @@ namespace Enflopio
     {
         ProcessConnections();
         ProcessMessages();
-        spdlog::get("frame")->info("PreSimulate");
+        logging::frame->info("PreSimulate");
         m_repl->ProcessCommands();
     }
 
@@ -100,7 +105,7 @@ namespace Enflopio
         {
             while(connection->HasNext())
             {
-                spdlog::get("network")->info("New message");
+                logging::net->debug("New message");
                 auto message =
                     ServerMessages::Deserialize(connection->ReadNext());
                 message->Accept(protocol);
@@ -119,7 +124,7 @@ namespace Enflopio
             message.last_input_delta = protocol.InputDelta();
             for (const auto& [id, player] : message.players)
             {
-                spdlog::info("{}: ({}, {})",
+                logging::net->debug("{}: ({}, {})",
                              id, player.position.x, player.position.y);
             }
             connection->Send(Serialize(message));
@@ -138,7 +143,7 @@ namespace Enflopio
 
     void Server::PostSimulate(double delta)
     {
-        spdlog::get("frame")->info("PostSimulate");
+        logging::frame->info("PostSimulate");
         if (GetSimulationTick() % 4 == 0)
         {
             SendSync();
@@ -147,7 +152,7 @@ namespace Enflopio
 
     void Server::NewConnect(Connection::Ptr connection)
     {
-        spdlog::get("network")->info("New connection");
+        logging::net->info("New connection");
         ProtocolImpl protocol(*connection, m_world);
         m_connections.insert(std::make_pair(std::move(connection),
                                             std::move(protocol)));
@@ -156,7 +161,7 @@ namespace Enflopio
     void Server::Disconnect(Connection::Ptr connection)
     {
         //TODO Add name
-        spdlog::get("network")->info("Disconnect");
+        logging::net->debug("Disconnect");
         auto it = m_connections.find(connection);
         it->second.Disconnect();
         m_connections.erase(connection);

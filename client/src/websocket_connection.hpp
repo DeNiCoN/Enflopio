@@ -3,7 +3,7 @@
 #include <deque>
 #include <mutex>
 #include <thread>
-#include <spdlog/spdlog.h>
+#include "utils/logging.hpp"
 
 #include <emscripten/emscripten.h>
 #include <emscripten/websocket.h>
@@ -28,7 +28,7 @@ namespace Enflopio
 
             if (m_socket <= 0)
             {
-                spdlog::error("Websocket creation failed with error code {}", m_socket);
+                logging::net->error("Websocket creation failed with error code {}", m_socket);
             }
 
             emscripten_websocket_set_onopen_callback(m_socket, static_cast<void*>(this), WebSocketOpen);
@@ -70,7 +70,7 @@ namespace Enflopio
                                      const EmscriptenWebSocketOpenEvent* e,
                                      void *userData)
         {
-            spdlog::debug("WebSocket connection opened");
+            logging::net->debug("WebSocket connection opened");
             return 0;
         }
 
@@ -78,7 +78,7 @@ namespace Enflopio
                                const EmscriptenWebSocketCloseEvent *e,
                                void *userData)
         {
-            spdlog::error("close(eventType={}, wasClean={}, code={}, reason={}, userData={})\n",
+            logging::net->error("close(eventType={}, wasClean={}, code={}, reason={}, userData={})\n",
                           eventType, e->wasClean, e->code, e->reason, (long)userData);
             return 0;
         }
@@ -87,7 +87,7 @@ namespace Enflopio
                                const EmscriptenWebSocketErrorEvent *e,
                                void *userData)
         {
-            spdlog::error("WebSocket error(eventType={}, userData={})\n",
+            logging::net->error("WebSocket error(eventType={}, userData={})\n",
                           eventType, (long)userData);
             return 0;
         }

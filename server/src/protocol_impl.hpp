@@ -21,10 +21,8 @@ namespace Enflopio
         void UpdateMove(double delta)
         {
             m_current_input_delta += delta;
-            spdlog::debug("size: {}", m_history.size());
             if (m_history.size() >= 2)
             {
-                spdlog::debug("TSDTSDTSTD {}", m_history[1].second);
                 if (m_current_input_delta >= m_history[1].second)
                 {
                     m_current_input_delta = m_current_input_delta - m_history[1].second;

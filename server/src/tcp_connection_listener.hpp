@@ -3,7 +3,7 @@
 #include <boost/asio.hpp>
 #include <thread>
 #include "tcp_connection.hpp"
-#include <spdlog/spdlog.h>
+#include "utils/logging.hpp"
 
 namespace Enflopio
 {
@@ -30,7 +30,7 @@ namespace Enflopio
         {
             m_listen_thread = std::thread([&]
             {
-                spdlog::debug("TCP server thread started");
+                logging::net->info("TCP server thread started");
                 StartAccept(std::move(n_callback), std::move(d_callback));
                 m_io_service.run();
             });
@@ -49,7 +49,7 @@ namespace Enflopio
                  std::invocable<Connection::Ptr> DisconnectCallback>
         void StartAccept(NewCallback n_callback, DisconnectCallback d_callback)
         {
-            spdlog::info("Listening tcp on {} port started", m_port);
+            logging::net->info("Listening tcp on {} port started", m_port);
             m_acceptor.async_accept([this,
                                      n_callback = std::move(n_callback),
                                      d_callback = std::move(d_callback)]
@@ -58,7 +58,7 @@ namespace Enflopio
             {
                 if (!error)
                 {
-                    spdlog::info("New tcp connection");
+                    logging::net->info("New tcp connection");
                     auto connection =
                         std::make_shared<TCPConnection>(
                             std::move(socket), m_io_service,
@@ -71,7 +71,7 @@ namespace Enflopio
                 }
                 else
                 {
-                    spdlog::info("Error listening tcp connection: {}", error.message());
+                    logging::net->error("Error listening tcp connection: {}", error.message());
                 }
                 StartAccept(std::move(n_callback), std::move(d_callback));
             });

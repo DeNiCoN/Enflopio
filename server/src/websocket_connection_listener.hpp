@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <thread>
 #include "websocket_connection.hpp"
-#include <spdlog/spdlog.h>
+#include "utils/logging.hpp"
 
 namespace Enflopio
 {
@@ -26,12 +26,12 @@ namespace Enflopio
         {
             m_listen_thread = std::thread([&]
             {
-                spdlog::debug("Websocket server thread started");
+                logging::net->info("Websocket server thread started");
 
                 uWS::App().ws<WebSocketConnection::Ptr>("/*", {
                         .open = [&](auto* ws)
                         {
-                            spdlog::info("New websocket connection {}",
+                            logging::net->info("New websocket connection {}",
                                          ws->getRemoteAddressAsText());
                             *ws->getUserData() = std::make_shared<WebSocketConnection>(ws, *uWS::Loop::get());
                             n_callback(*ws->getUserData());
@@ -48,15 +48,15 @@ namespace Enflopio
                     {
                         if (!listen_socket)
                         {
-                            spdlog::critical("Failed to start listening websocket on {} port", m_port);
+                            logging::net->critical("Failed to start listening websocket on {} port", m_port);
                             throw std::exception();
                         }
                         else
                         {
-                            spdlog::info("Listening websocket on {} port started", m_port);
+                            logging::net->info("Listening websocket on {} port started", m_port);
                         }
                     }).run();
-                spdlog::debug("Websocket server thread finished");
+                logging::net->info("Websocket server thread finished");
             });
 
         }

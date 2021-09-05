@@ -6,7 +6,7 @@
 #include <shared_mutex>
 #include <thread>
 #include <optional>
-#include <spdlog/spdlog.h>
+#include "utils/logging.hpp"
 
 namespace Enflopio
 {
@@ -33,19 +33,19 @@ namespace Enflopio
 
         void Connect(std::string_view address, short port)
         {
-            spdlog::debug("ASIOConnection resolving endpoints {}:{}", address, port);
+            logging::net->info("ASIOConnection resolving endpoints {}:{}", address, port);
             boost::asio::ip::tcp::resolver resolver(m_io_context);
             auto endpoints = resolver.resolve(address, std::to_string(port));
 
-            spdlog::debug("{} endpoints resolved. Connecting...", endpoints.size());
+            logging::net->info("{} endpoints resolved. Connecting...", endpoints.size());
             boost::asio::connect(m_socket, endpoints);
 
-            spdlog::info("Connection successfull", endpoints.size());
+            logging::net->info("Connection successfull", endpoints.size());
 
             ReadNextMessage();
             m_messages_thread = std::thread([&] {
                 m_io_context.run();
-                spdlog::info("IO context stopped");
+                logging::net->info("IO context stopped");
             });
         }
 
@@ -86,13 +86,13 @@ namespace Enflopio
                 {
                     if (error_code)
                     {
-                        spdlog::error("Could not read header: {}",
+                        logging::net->error("Could not read header: {}",
                                       boost::system::system_error(error_code).what());
                         return;
                     }
                     else
                     {
-                        //spdlog::debug("Read message, size {}", m_current_input_header);
+                        logging::net->debug("Read message, size {}", m_current_input_header);
                         ReadMessage(m_current_input_header);
                     }
                 });
@@ -109,7 +109,7 @@ namespace Enflopio
                 {
                     if (error_code)
                     {
-                        spdlog::error("Could not read message: {}",
+                        logging::net->error("Could not read message: {}",
                                       boost::system::system_error(error_code).what());
                         return;
                     }
@@ -143,7 +143,7 @@ namespace Enflopio
 
                     if (error_code)
                     {
-                        spdlog::error("Could not write: {}",
+                        logging::net->error("Could not write: {}",
                                       boost::system::system_error(error_code).what());
                         return;
                     }

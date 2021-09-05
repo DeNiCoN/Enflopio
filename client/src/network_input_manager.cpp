@@ -21,7 +21,7 @@ namespace Enflopio
         //TODO
         //Clear acknowledged history
         ClearHistory(server_ack_id);
-        spdlog::debug("Ack id: {}, history size: {}", server_ack_id, m_history.size());
+        logging::net->debug("Ack id: {}, history size: {}", server_ack_id, m_history.size());
         //Simulate server_player for history
         m_history.front().second -= input_delta;
 

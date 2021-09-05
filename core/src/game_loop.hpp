@@ -3,6 +3,7 @@
 #include <thread>
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/chrono.h>
+#include "utils/logging.hpp"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>

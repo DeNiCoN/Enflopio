@@ -1,6 +1,7 @@
 #pragma once
 #include "websocket_connection_listener.hpp"
 #include "tcp_connection_listener.hpp"
+#include "utils/logging.hpp"
 
 namespace Enflopio
 {
@@ -14,6 +15,7 @@ namespace Enflopio
 
         void StartListening()
         {
+            logging::net->info("Starting listening for connections");
             auto pending_connect = [this](Connection::Ptr ptr)
             {
                 PendingConnect(std::move(ptr));
@@ -39,7 +41,7 @@ namespace Enflopio
         void ProcessConnections(NewCallback new_callback,
                                 DisconnectCallback disconnect)
         {
-            spdlog::get("network")->debug(
+            logging::net->debug(
                 "Processing connections: new {}, disconnect {}",
                 m_pending_connect.size(), m_pending_disconnect.size());
 
@@ -60,7 +62,7 @@ namespace Enflopio
     private:
         void PendingConnect(Connection::Ptr ptr)
         {
-            spdlog::info("New pending connect");
+            logging::net->info("New pending connect");
             std::scoped_lock lock(m_connections_mutex);
             m_pending_connect.push_back(std::move(ptr));
         }

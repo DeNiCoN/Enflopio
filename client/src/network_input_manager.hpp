@@ -34,7 +34,7 @@ namespace Enflopio
                 message.input = new_input;
 
                 m_network.Send(Serialize(message));
-                spdlog::debug("Sending input, id: {}, delta: {}", new_input.id, message.delta);
+                logging::net->debug("Sending input, id: {}, delta: {}", new_input.id, message.delta);
 
                 m_history.push_back({new_input, 0});
             }

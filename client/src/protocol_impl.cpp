@@ -8,7 +8,7 @@ namespace Enflopio
 {
     void ProtocolImpl::Handle(const ClientMessages::Hello &msg)
     {
-        spdlog::debug("Hello received: ({}, {})", msg.player_pos.x, msg.player_pos.y);
+        logging::net->debug("Hello received: ({}, {})", msg.player_pos.x, msg.player_pos.y);
         Player current_player;
         current_player.position = msg.player_pos;
         m_app.m_current_player_id = m_app.m_world.AddPlayer(current_player, msg.player_id);
@@ -32,7 +32,7 @@ namespace Enflopio
                                           m_app.m_interpolations.at(id));
 
             m_app.m_world.m_circles = msg.circles;
-            spdlog::debug("Sync, circles: {}", msg.circles.size());
+            logging::net->debug("Sync, circles: {}", msg.circles.size());
         }
     }
 }

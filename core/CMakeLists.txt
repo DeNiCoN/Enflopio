@@ -1,4 +1,6 @@
 file(GLOB core_SRC
+  "src/**/*.hpp"
+  "src/**/*.cpp"
   "src/*.hpp"
   "src/*.cpp"
   )

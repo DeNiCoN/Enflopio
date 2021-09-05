@@ -1,6 +1,6 @@
 #include "tcp_connection.hpp"
 #include "tcp_connection_listener.hpp"
-#include <spdlog/spdlog.h>
+#include "utils/logging.hpp"
 
 namespace Enflopio
 {
@@ -36,10 +36,10 @@ namespace Enflopio
             boost::asio::buffer(&m_current_input_header, sizeof(m_current_input_header)),
             [this](auto error_code, std::size_t)
             {
-                spdlog::debug("New tcp header");
+                logging::net->debug("New tcp header");
                 if (error_code)
                 {
-                    spdlog::error("Could not read header: {}",
+                    logging::net->error("Could not read header: {}",
                                   boost::system::system_error(error_code).what());
                     m_close_callback(shared_from_this());
                     return;
@@ -60,10 +60,10 @@ namespace Enflopio
                                 m_current_message.size()),
             [this](auto error_code, std::size_t)
             {
-                spdlog::debug("New tcp message");
+                logging::net->debug("New tcp message");
                 if (error_code)
                 {
-                    spdlog::error("Could not read message: {}",
+                    logging::net->error("Could not read message: {}",
                                   boost::system::system_error(error_code).what());
                     m_close_callback(shared_from_this());
                     return;
@@ -95,7 +95,7 @@ namespace Enflopio
 
                 if (error_code)
                 {
-                    spdlog::error("Could not write: {}",
+                    logging::net->error("Could not write: {}",
                                   boost::system::system_error(error_code).what());
                     return;
                 }

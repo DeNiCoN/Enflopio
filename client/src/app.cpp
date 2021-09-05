@@ -55,12 +55,13 @@ namespace Enflopio
 
         std::set_terminate([]
         {
-            spdlog::get("frame")->flush();
             spdlog::get("frame")->dump_backtrace();
-            spdlog::get("network")->flush();
             spdlog::get("network")->dump_backtrace();
             std::abort();
         });
+
+        logging::frame = frame;
+        logging::net = network;
     }
 
     void App::Init()
@@ -100,16 +101,16 @@ namespace Enflopio
         Resize(width, height);
 
         m_network.Init();
-        spdlog::info("Netword initialized");
+        spdlog::info("Network initialized");
         m_network.Send(Serialize(ServerMessages::Hello()));
         spdlog::info("Initialization finished");
     }
 
     void App::PreUpdate()
     {
-        spdlog::get("frame")->info("Frame {} stared", m_tick);
+        logging::frame->info("Frame {} stared", m_tick);
 
-        spdlog::get("frame")->info("Processing network messages");
+        logging::frame->info("Processing network messages");
         while (m_network.HasNextMessage())
         {
             auto message_ptr = ClientMessages::Deserialize(m_network.NextMessage());
@@ -119,9 +120,9 @@ namespace Enflopio
 
     void App::Simulate(double delta)
     {
-        spdlog::get("frame")->info("Simulation {}", GetSimulationTick());
+        logging::frame->info("Simulation {}", GetSimulationTick());
 
-        spdlog::get("frame")->info("Updating controls");
+        logging::frame->info("Updating controls");
         m_input_manager.Update();
         auto current_controls = m_input_manager.GetCurrent();
 
@@ -133,32 +134,32 @@ namespace Enflopio
             m_network_input.ProcessControls(current_controls, delta);
         }
 
-        spdlog::get("frame")->info("Interpolating");
+        logging::frame->info("Interpolating");
         for (auto& [id, interp] : m_interpolations)
         {
             interp.Update(delta);
         }
 
-        spdlog::get("frame")->info("Running world update");
+        logging::frame->info("Running world update");
         m_process_manager.Update(delta);
         m_world.Update(delta);
         m_camera.Update(delta);
 
         if (m_world.HasPlayer(m_current_player_id))
         {
-            spdlog::get("frame")->info("Moving camera");
+            logging::frame->info("Moving camera");
             m_camera.Move(m_world.GetPlayer(m_current_player_id).position);
         }
     }
 
     void App::PostUpdate()
     {
-        spdlog::get("frame")->info("Frame {} finished", GetFrameTick());
+        logging::frame->info("Frame {} finished", GetFrameTick());
     }
 
     void App::PostSimulate(double delta)
     {
-        spdlog::get("frame")->info("Render update", m_tick);
+        logging::frame->info("Render update", m_tick);
         CircleBatch::Instance().Clear();
 
         //Add to Render
@@ -184,7 +185,7 @@ namespace Enflopio
 
     void App::Render(double delay)
     {
-        spdlog::get("frame")->info("Render", m_tick);
+        logging::frame->info("Render", m_tick);
         glClear(GL_COLOR_BUFFER_BIT);
 
         CircleBatch::Instance().SetView(m_camera.CalculateView(delay));
