@@ -1,7 +1,7 @@
 #pragma once
 
-#include "spdlog/sinks/base_sink.h"
-#include "spdlog/details/null_mutex.h"
+#include <spdlog/sinks/base_sink.h>
+#include <spdlog/details/null_mutex.h>
 #include <mutex>
 #include <iostream>
 #include "repl.hpp"
@@ -22,10 +22,15 @@ namespace Enflopio
 
             spdlog::memory_buf_t formatted;
             spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
+
             if (!m_repl.expired())
+            {
                 m_repl.lock()->Write(fmt::to_string(formatted));
+            }
             else
+            {
                 std::cerr << fmt::to_string(formatted);
+            }
         }
 
         void flush_() override

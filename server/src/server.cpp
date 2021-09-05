@@ -87,8 +87,8 @@ namespace Enflopio
     {
         ProcessConnections();
         ProcessMessages();
-        spdlog::get("frame")->warn("presimulate");
-        //m_repl->ProcessCommands();
+        spdlog::get("frame")->info("PreSimulate");
+        m_repl->ProcessCommands();
     }
 
     void Server::ProcessMessages()
@@ -133,7 +133,7 @@ namespace Enflopio
 
     void Server::PostSimulate(double delta)
     {
-        spdlog::get("frame")->warn("Post simulate");
+        spdlog::get("frame")->info("PostSimulate");
         if (GetSimulationTick() % 4 == 0)
         {
             SendSync();
