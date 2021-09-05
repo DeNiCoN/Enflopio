@@ -33,9 +33,9 @@ namespace Enflopio
 #endif
         }
 
-        double GetDesiredDelta() { return std::chrono::duration<double>(m_desired_delta).count(); }
-        std::uint64_t GetSimulationTick() { return m_simulation_tick; }
-        std::uint64_t GetFrameTick() { return m_frame_tick; }
+        double GetDesiredDelta() const { return std::chrono::duration<double>(m_desired_delta).count(); }
+        std::uint64_t GetSimulationTick() const { return m_simulation_tick; }
+        std::uint64_t GetFrameTick() const { return m_frame_tick; }
     private:
         static T& Instance()
         {
@@ -55,8 +55,8 @@ namespace Enflopio
             m_last_update = m_current_update;
         }
 
-        bool ShouldStop() { return false; }
-        bool ShouldSleep() { return false; }
+        bool ShouldStop() const { return false; }
+        bool ShouldSleep() const { return false; }
         void PreUpdate() {};
         void PreSimulate(double delta) {};
         void Simulate(double delta) {};
