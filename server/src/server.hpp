@@ -6,6 +6,7 @@
 #include "protocol_impl.hpp"
 #include "world.hpp"
 #include "game_loop.hpp"
+#include "repl.hpp"
 
 namespace Enflopio
 {
@@ -40,10 +41,14 @@ namespace Enflopio
         void Simulate(double delta);
         void PostSimulate(double delta);
         void Terminate();
-        bool ShouldSleep() { return true; }
+        bool ShouldStop() const { return m_should_stop; }
+        bool ShouldSleep() const { return true; }
+
+        bool m_should_stop = false;
 
         std::unordered_map<Connection::Ptr, ProtocolImpl> m_connections;
         ConnectionManager m_connection_manager;
+        std::shared_ptr<Repl> m_repl;
         World m_world;
     };
 }

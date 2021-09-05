@@ -1,6 +1,8 @@
 #pragma once
 #include <chrono>
 #include <thread>
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/chrono.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -32,9 +34,9 @@ namespace Enflopio
 #endif
         }
 
-        double GetDesiredDelta() { return std::chrono::duration<double>(m_desired_delta).count(); }
-        std::uint64_t GetSimulationTick() { return m_simulation_tick; }
-        std::uint64_t GetFrameTick() { return m_frame_tick; }
+        double GetDesiredDelta() const { return std::chrono::duration<double>(m_desired_delta).count(); }
+        std::uint64_t GetSimulationTick() const { return m_simulation_tick; }
+        std::uint64_t GetFrameTick() const { return m_frame_tick; }
     private:
         static T& Instance()
         {
@@ -54,8 +56,8 @@ namespace Enflopio
             m_last_update = m_current_update;
         }
 
-        bool ShouldStop() { return false; }
-        bool ShouldSleep() { return false; }
+        bool ShouldStop() const { return false; }
+        bool ShouldSleep() const { return false; }
         void PreUpdate() {};
         void PreSimulate(double delta) {};
         void Simulate(double delta) {};
@@ -69,7 +71,7 @@ namespace Enflopio
         using Duration = std::chrono::high_resolution_clock::duration;
         TimePoint m_last_update;
         Duration m_desired_delta = std::chrono::duration_cast<Duration>(std::chrono::duration<double>(1.0/60.0));
-        Duration m_lag;
+        Duration m_lag = std::chrono::high_resolution_clock::duration::zero();
         TimePoint m_current_update;
         std::uint64_t m_frame_tick = 0;
         std::uint64_t m_simulation_tick = 0;
@@ -84,7 +86,9 @@ namespace Enflopio
             AsT()->PreUpdate();
 
             if (simulation_needed)
+            {
                 AsT()->PreSimulate(duration<double>(m_desired_delta).count());
+            }
 
             while (m_lag > m_desired_delta)
             {
@@ -95,7 +99,9 @@ namespace Enflopio
             }
 
             if (simulation_needed)
+            {
                 AsT()->PostSimulate(duration<double>(m_desired_delta).count());
+            }
 
             AsT()->Render(duration<double>(m_lag).count());
             AsT()->PostUpdate();
@@ -103,7 +109,9 @@ namespace Enflopio
             m_frame_tick++;
 
             if (AsT()->ShouldSleep())
+            {
                 std::this_thread::sleep_for(m_desired_delta - m_lag);
+            }
         }
 
         static void main_loop()

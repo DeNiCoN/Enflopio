@@ -5,21 +5,26 @@
 #include <glm/gtc/random.hpp>
 #include <spdlog/async.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include "repl_sink.hpp"
 
 using namespace std;
 
 namespace Enflopio
 {
+    //Idk, repl might live more than a server,
+    //but input will be stoped in normal termination
     Server::Server(const Options& options)
-        : m_connection_manager(options.tcp_port, options.websocket_port)
+        : m_connection_manager(options.tcp_port, options.websocket_port),
+          m_repl(std::make_shared<Repl>(*this))
     {
 
     }
 
     void Server::SetupLogging()
     {
-        auto frame = spdlog::stdout_color_mt("frame");
-        auto network = spdlog::stdout_color_mt("network");
+        auto repl_sink = std::make_shared<repl_sink_mt>(m_repl);
+        auto frame = std::make_shared<spdlog::logger>("frame", repl_sink);
+        auto network = std::make_shared<spdlog::logger>("network", repl_sink);
 
         frame->enable_backtrace(NUM_BACKTRACE_LOG_MESSAGES);
         frame->set_level(spdlog::level::warn);
@@ -33,10 +38,18 @@ namespace Enflopio
             spdlog::get("network")->dump_backtrace();
             std::abort();
         });
+
+        spdlog::default_logger()->sinks().clear();
+        spdlog::default_logger()->sinks().push_back(repl_sink);
+
+        spdlog::register_logger(frame);
+        spdlog::register_logger(network);
     }
 
     void Server::Init()
     {
+        m_repl->StartInput();
+
         SetupLogging();
 
         m_connection_manager.StartListening();
@@ -56,12 +69,16 @@ namespace Enflopio
     void Server::Terminate()
     {
         m_connection_manager.StopListening();
+
+        m_repl->StopInput();
     }
 
     void Server::PreSimulate(double delta)
     {
         ProcessConnections();
         ProcessMessages();
+        spdlog::get("frame")->info("PreSimulate");
+        m_repl->ProcessCommands();
     }
 
     void Server::ProcessConnections()
@@ -121,6 +138,7 @@ namespace Enflopio
 
     void Server::PostSimulate(double delta)
     {
+        spdlog::get("frame")->info("PostSimulate");
         if (GetSimulationTick() % 4 == 0)
         {
             SendSync();
