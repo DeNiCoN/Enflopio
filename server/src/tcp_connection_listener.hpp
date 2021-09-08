@@ -28,7 +28,9 @@ namespace Enflopio
         void StartListening(NewCallback n_callback,
                             DisconnectCallback d_callback)
         {
-            m_listen_thread = std::thread([&]
+            m_listen_thread = std::thread([this,
+                                           n_callback = std::move(n_callback),
+                                           d_callback = std::move(d_callback)]
             {
                 logging::net->info("TCP server thread started");
                 StartAccept(std::move(n_callback), std::move(d_callback));
@@ -61,11 +63,7 @@ namespace Enflopio
                     logging::net->info("New tcp connection");
                     auto connection =
                         std::make_shared<TCPConnection>(
-                            std::move(socket), m_io_service,
-                            [d_callback](Connection::Ptr ptr)
-                            {
-                                d_callback(std::move(ptr));
-                            });
+                            std::move(socket), m_io_service, d_callback);
                     connection->ReadNextMessage();
                     n_callback(std::move(connection));
                 }

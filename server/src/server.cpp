@@ -31,11 +31,13 @@ namespace Enflopio
         frame->set_level(spdlog::level::warn);
 
         network->enable_backtrace(NUM_BACKTRACE_LOG_MESSAGES);
-        network->set_level(spdlog::level::warn);
+        network->set_level(spdlog::level::info);
 
         std::set_terminate([]
         {
+            spdlog::get("frame")->flush();
             spdlog::get("frame")->dump_backtrace();
+            spdlog::get("network")->flush();
             spdlog::get("network")->dump_backtrace();
             std::abort();
         });
@@ -80,9 +82,9 @@ namespace Enflopio
 
     void Server::PreSimulate(double delta)
     {
+        logging::frame->info("PreSimulate");
         ProcessConnections();
         ProcessMessages();
-        logging::frame->info("PreSimulate");
         m_repl->ProcessCommands();
     }
 
@@ -115,6 +117,7 @@ namespace Enflopio
 
     void Server::SendSync()
     {
+        logging::frame->info("Sending sync to {} clients", m_connections.size());
         for (auto& [connection, protocol] : m_connections)
         {
             ClientMessages::Sync message;

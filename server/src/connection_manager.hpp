@@ -41,11 +41,12 @@ namespace Enflopio
         void ProcessConnections(NewCallback new_callback,
                                 DisconnectCallback disconnect)
         {
-            logging::net->debug(
+            std::scoped_lock lock(m_connections_mutex);
+
+            logging::frame->debug(
                 "Processing connections: new {}, disconnect {}",
                 m_pending_connect.size(), m_pending_disconnect.size());
 
-            std::scoped_lock lock(m_connections_mutex);
             for (auto& ptr : m_pending_connect)
             {
                 new_callback(std::move(ptr));
@@ -62,14 +63,15 @@ namespace Enflopio
     private:
         void PendingConnect(Connection::Ptr ptr)
         {
-            logging::net->info("New pending connect");
             std::scoped_lock lock(m_connections_mutex);
+            logging::net->info("New pending connect {}", m_pending_connect.size());
             m_pending_connect.push_back(std::move(ptr));
         }
 
         void PendingDisconnect(Connection::Ptr ptr)
         {
             std::scoped_lock lock(m_connections_mutex);
+            logging::net->info("New pending disconnect");
             m_pending_disconnect.push_back(std::move(ptr));
         }
 

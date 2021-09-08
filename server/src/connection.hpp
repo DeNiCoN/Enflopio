@@ -5,6 +5,7 @@
 #include <deque>
 #include <shared_mutex>
 #include <mutex>
+#include "utils/logging.hpp"
 
 namespace Enflopio
 {
