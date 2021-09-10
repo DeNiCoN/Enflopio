@@ -2,19 +2,22 @@ if (client_ENABLED)
   file(GLOB client_SRC
     "src/*.hpp"
     "src/*.cpp"
+    "bindings/*.hpp"
+    "bindings/*.cpp"
     )
 
   add_executable(client
     ${client_SRC}
     )
 
+  find_package(imgui)
+
+  target_link_libraries(client
+    enflopio::core
+    imgui::imgui
+    )
+
   if (EMSCRIPTEN)
-    find_package(glm)
-
-    target_link_libraries(client
-      enflopio::core
-      )
-
     set_target_properties(client PROPERTIES LINK_FLAGS
       "-s ASYNCIFY -lwebsocket.js -s USE_WEBGL2=1 -s MAX_WEBGL_VERSION=2 -s USE_GLFW=3 --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/emscripten.html"
       OUTPUT_NAME "index"
@@ -26,12 +29,11 @@ if (client_ENABLED)
     find_package(Boost COMPONENTS REQUIRED system)
 
     target_link_libraries(client
-      enflopio::core
       glfw::glfw
       glad::glad
       Boost::Boost
       )
   endif()
 
-  target_include_directories(client PUBLIC src/)
+  target_include_directories(client PUBLIC src/ bindings/)
 endif()

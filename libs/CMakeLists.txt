@@ -27,6 +27,10 @@ list(APPEND options
   )
 
 if (client_ENABLED)
+  list(APPEND packages
+    imgui/[>=1.84.2]
+    )
+
   if (EMSCRIPTEN)
     list(APPEND build_requires
       emsdk_installer/1.38.29@bincrafters/stable
@@ -71,11 +75,14 @@ conan_cmake_configure(
   BUILD_REQUIRES ${build_requires}
   OPTIONS ${options}
   GENERATORS cmake_find_package
+  IMPORTS "res/bindings, imgui_impl_glfw.* -> ${CMAKE_SOURCE_DIR}/client/bindings"
+  IMPORTS "res/bindings, imgui_impl_opengl3.* -> ${CMAKE_SOURCE_DIR}/client/bindings"
+  IMPORTS "res/bindings, imgui_impl_opengl3_loader.* -> ${CMAKE_SOURCE_DIR}/client/bindings"
   )
 
 conan_cmake_install(PATH_OR_REFERENCE .
   BUILD missing
-  REMOTE conan-center
+  REMOTE conancenter
   SETTINGS ${settings}
   ENV ${env}
   )

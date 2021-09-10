@@ -9,6 +9,10 @@
 #include "messages.hpp"
 #include <signal.h>
 
+#include <imgui.h>
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
+
 namespace Enflopio
 {
     App& App::Instance()
@@ -100,6 +104,16 @@ namespace Enflopio
         glfwGetFramebufferSize(m_window, &width, &height);
         Resize(width, height);
 
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        io.IniFilename = NULL;
+
+        ImGui::StyleColorsDark();
+
+        ImGui_ImplGlfw_InitForOpenGL(m_window, true);
+        ImGui_ImplOpenGL3_Init();
+
         m_network.Init();
         spdlog::info("Network initialized");
         m_network.Send(Serialize(ServerMessages::Hello()));
@@ -109,6 +123,12 @@ namespace Enflopio
     void App::PreUpdate()
     {
         logging::frame->info("Frame {} stared", m_tick);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
 
         logging::frame->info("Processing network messages");
         while (m_network.HasNextMessage())
@@ -190,6 +210,9 @@ namespace Enflopio
 
         CircleBatch::Instance().SetView(m_camera.CalculateView(delay));
         CircleBatch::Instance().Draw(delay);
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(m_window);
     }
