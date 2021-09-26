@@ -12,6 +12,7 @@
 #include <imgui.h>
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
+#include <string_view>
 
 namespace Enflopio
 {
@@ -120,15 +121,42 @@ namespace Enflopio
         spdlog::info("Initialization finished");
     }
 
+    void LogLevel(const std::string& name)
+    {
+        std::shared_ptr<spdlog::logger> logger;
+        if (name == "default")
+            logger = spdlog::default_logger();
+        else
+            logger = spdlog::get(name);
+
+        if (ImGui::BeginCombo(name.c_str(), spdlog::level::to_string_view(logger->level()).data()))
+        {
+            for (const auto& str_view : spdlog::level::level_string_views)
+            {
+                if (ImGui::Selectable(str_view.data()))
+                {
+                    logger->set_level(spdlog::level::from_str(std::string(str_view.data(), str_view.size())));
+                }
+            }
+            ImGui::EndCombo();
+        }
+    }
+
     void App::PreUpdate()
     {
         logging::frame->info("Frame {} stared", m_tick);
+
+        m_input_manager.Update();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow();
+        ImGui::Begin("Loggers");
+        LogLevel("frame");
+        LogLevel("network");
+        LogLevel("default");
+        ImGui::End();
 
         logging::frame->info("Processing network messages");
         while (m_network.HasNextMessage())
@@ -143,7 +171,6 @@ namespace Enflopio
         logging::frame->info("Simulation {}", GetSimulationTick());
 
         logging::frame->info("Updating controls");
-        m_input_manager.Update();
         auto current_controls = m_input_manager.GetCurrent();
 
         if (m_world.HasPlayer(m_current_player_id))
@@ -219,6 +246,9 @@ namespace Enflopio
 
     void App::Terminate()
     {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
         glfwDestroyWindow(m_window);
         glfwTerminate();
     }
