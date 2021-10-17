@@ -1,6 +1,4 @@
-.ccls-cache/
 client/bindings/
 build/Emscripten
 build/RelWithDebInfo
 build/Debug
-compile_commands.json
