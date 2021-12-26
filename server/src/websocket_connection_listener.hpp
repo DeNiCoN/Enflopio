@@ -24,7 +24,9 @@ namespace Enflopio
         void StartListening(NewCallback n_callback,
                             DisconnectCallback d_callback)
         {
-            m_listen_thread = std::thread([&]
+            m_listen_thread = std::thread([this,
+                                           n_callback = std::move(n_callback),
+                                           d_callback = std::move(d_callback)]
             {
                 logging::net->info("Websocket server thread started");
 

@@ -38,11 +38,6 @@ if (client_ENABLED)
 
     list(APPEND settings "os=Emscripten" "arch=wasm")
 
-    list(APPEND env
-      CC=/usr/bin/clang
-      CXX=/usr/bin/clang++
-      )
-
     list(APPEND options
       )
   else()

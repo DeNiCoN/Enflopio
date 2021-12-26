@@ -38,12 +38,14 @@ namespace Enflopio
         double GetDesiredDelta() const { return std::chrono::duration<double>(m_desired_delta).count(); }
         std::uint64_t GetSimulationTick() const { return m_simulation_tick; }
         std::uint64_t GetFrameTick() const { return m_frame_tick; }
-    private:
+
         static T& Instance()
         {
             static T instance;
             return instance;
         }
+
+    private:
 
         void InitClock()
         {

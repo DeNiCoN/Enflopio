@@ -17,8 +17,6 @@ namespace Enflopio
     class App final : public GameLoop<App>
     {
     public:
-        static App& Instance();
-
         void AddDebugDraw(glm::vec2 position, glm::vec4 color);
         void ClearDebugDraw()
         {
@@ -61,5 +59,6 @@ namespace Enflopio
 
         friend class ProtocolImpl;
         friend void window_size_callback(GLFWwindow*, int, int);
+        friend class GameLoop<App>;
     };
 }

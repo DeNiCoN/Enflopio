@@ -16,12 +16,6 @@
 
 namespace Enflopio
 {
-    App& App::Instance()
-    {
-        static App instance;
-        return instance;
-    }
-
     static void error_callback(int error, const char *description)
     {
         spdlog::error("Error: {}\n", description);
