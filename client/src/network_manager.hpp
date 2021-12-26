@@ -3,6 +3,7 @@
 #include <deque>
 #include <cereal/archives/portable_binary.hpp>
 #include <sstream>
+#include "messages.hpp"
 
 #ifdef __EMSCRIPTEN__
 #include "websocket_connection.hpp"
@@ -12,14 +13,17 @@
 
 namespace Enflopio
 {
-    class NetworkManager
+    class NetworkConnection
     {
     public:
         using Message = std::string;
         using MessageView = std::string_view;
         using Messages = std::deque<Message>;
 
-        void Init();
+        void Connect(std::string_view address, short port)
+        {
+            m_connection.Connect(address, port);
+        }
 
         Message NextMessage()
         {
@@ -35,8 +39,8 @@ namespace Enflopio
         {
             m_connection.Send(std::move(message));
         }
-    private:
 
+    private:
 #ifdef __EMSCRIPTEN__
         using Connection = WebsocketConnection;
 #else
@@ -44,5 +48,31 @@ namespace Enflopio
 #endif
 
         Connection m_connection;
+    };
+
+    class NetworkManager
+    {
+    public:
+        void Connect(std::string_view address, short port)
+        {
+            m_connection.Connect(address, port);
+        }
+
+        ClientMessage::Ptr NextMessage()
+        {
+            return ClientMessages::Deserialize(m_connection.NextMessage());
+        }
+
+        bool HasNextMessage() const
+        {
+            return m_connection.HasNextMessage();
+        }
+
+        void Send(const ServerMessage& message)
+        {
+            m_connection.Send(ServerMessages::Serialize(message));
+        }
+    private:
+        NetworkConnection m_connection;
     };
 }

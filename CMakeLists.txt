@@ -5,10 +5,6 @@ project(Enflopio)
 set(CMAKE_CXX_STANDARD 20)
 
 if (EMSCRIPTEN)
-  set(CMAKE_CXX_COMPILER_VERSION 12.0.0)
-endif()
-
-if (EMSCRIPTEN)
   option(client_ENABLED "Build client" ON)
   option(backend_ENABLED "Build backend" ON)
   option(server_ENABLED "Build server" OFF)

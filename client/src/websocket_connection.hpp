@@ -17,6 +17,11 @@ namespace Enflopio
         using MessageView = std::string_view;
         using Messages = std::deque<Message>;
 
+        void Connect(std::string_view address, short port)
+        {
+            Connect("ws://" + std::string(address) + ":" + std::to_string(port));
+        }
+
         void Connect(const std::string& uri)
         {
             EmscriptenWebSocketCreateAttributes attributes;

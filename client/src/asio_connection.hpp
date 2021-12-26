@@ -162,8 +162,8 @@ namespace Enflopio
         mutable std::shared_mutex m_messages_mutex;
         std::thread m_messages_thread;
 
-        std::uint32_t m_current_input_header;
-        std::uint32_t m_current_output_header;
+        std::uint32_t m_current_input_header = 0;
+        std::uint32_t m_current_output_header = 0;
         Message m_current_message;
     };
 }

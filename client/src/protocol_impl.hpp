@@ -1,6 +1,7 @@
 #pragma once
 #include "protocol.hpp"
 #include "player.hpp"
+#include <variant>
 
 namespace Enflopio
 {
@@ -9,7 +10,7 @@ namespace Enflopio
     class ProtocolImpl final : public ClientProtocol
     {
     public:
-        ProtocolImpl(App& app) : m_app(app)
+        explicit ProtocolImpl(App& app) : m_app(app)
         {
 
         }

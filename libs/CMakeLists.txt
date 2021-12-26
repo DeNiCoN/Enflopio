@@ -82,7 +82,6 @@ conan_cmake_configure(
 
 conan_cmake_install(PATH_OR_REFERENCE .
   BUILD missing
-  REMOTE conancenter
   SETTINGS ${settings}
   ENV ${env}
   )

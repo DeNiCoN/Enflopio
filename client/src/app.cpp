@@ -115,9 +115,17 @@ namespace Enflopio
         ImGui_ImplGlfw_InitForOpenGL(m_window, true);
         ImGui_ImplOpenGL3_Init();
 
-        m_network.Init();
+#ifdef __EMSCRIPTEN__
+        short port = 25326;
+        const auto& address = "93.74.188.74";
+#else
+        short port = 25325;
+        const auto& address = "93.74.188.74";
+#endif
+
+        m_network.Connect(address, port);
         spdlog::info("Network initialized");
-        m_network.Send(Serialize(ServerMessages::Hello()));
+        m_network.Send(ServerMessages::Hello());
         spdlog::info("Initialization finished");
     }
 
@@ -161,7 +169,7 @@ namespace Enflopio
         logging::frame->info("Processing network messages");
         while (m_network.HasNextMessage())
         {
-            auto message_ptr = ClientMessages::Deserialize(m_network.NextMessage());
+            auto message_ptr = m_network.NextMessage();
             message_ptr->Accept(m_protocol);
         }
     }

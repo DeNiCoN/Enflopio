@@ -33,7 +33,7 @@ namespace Enflopio
                 message.delta = m_history.back().second;
                 message.input = new_input;
 
-                m_network.Send(Serialize(message));
+                m_network.Send(message);
                 logging::net->debug("Sending input, id: {}, delta: {}", new_input.id, message.delta);
 
                 m_history.push_back({new_input, 0});

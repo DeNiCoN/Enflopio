@@ -40,12 +40,12 @@ namespace Enflopio
                 m_current_position += glm::length2(dir) * glm::normalize(dir) * static_cast<float>(delta);
         }
 
-        const glm::mat4& GetProjection()
+        const glm::mat4& GetProjection() const
         {
             return m_projection;
         }
 
-        glm::mat4 CalculateView(double delay)
+        glm::mat4 CalculateView(double delay) const
         {
             glm::mat4 result = glm::identity<glm::mat4>();
             result = glm::scale(result, glm::vec3(m_scale));
