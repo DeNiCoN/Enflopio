@@ -1,6 +1,8 @@
 #pragma once
 #include "circle_physics.hpp"
 #include "controls_state.hpp"
+#include "utils/logging.hpp"
+#include "utils/glm_operators.hpp"
 
 namespace Enflopio
 {
@@ -37,6 +39,7 @@ namespace Enflopio
         void SetControls(const ControlsState& controls)
         {
             m_controls = controls;
+            logging::net->debug("Player controls: {}", controls);
         }
 
         template <typename Archive>
@@ -50,7 +53,7 @@ namespace Enflopio
     };
 }
 
-inline std::ostream& operator<<(std::ostream& out, Enflopio::Player& rhs)
+inline std::ostream& operator<<(std::ostream& out, const Enflopio::Player& rhs)
 {
     return out << "(" << rhs.position.x << ", " << rhs.position.y << ")";
 }

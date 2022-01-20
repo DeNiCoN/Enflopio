@@ -3,6 +3,8 @@
 #include "serialization.hpp"
 #include <tuple>
 #include <chrono>
+#include "fmt/format.h"
+#include "utils/glm_operators.hpp"
 
 namespace Enflopio
 {
@@ -21,5 +23,11 @@ namespace Enflopio
     void serialize(Archive& ar, ControlsState& state)
     {
         ar(state.direction);
+    }
+
+    inline std::ostream& operator<<(std::ostream& os, const ControlsState& state)
+    {
+        os << state.direction;
+        return os;
     }
 }
