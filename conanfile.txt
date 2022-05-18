@@ -1,0 +1,13 @@
+[requires]
+    glm/[>=0.9.9]
+    spdlog/[>=1.8.5]
+    cereal/[>=1.3.0]
+    imgui/[>=1.84.2]
+
+[options]
+    spdlog:header_only=True
+    fmt:header_only=True
+
+[generators]
+    virtualenv
+    cmake_find_package
