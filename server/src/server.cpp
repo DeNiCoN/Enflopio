@@ -1,6 +1,8 @@
 #include "server.hpp"
 #include <chrono>
 #include <span>
+#include <exception>
+#include <stdexcept>
 #include "messages.hpp"
 #include <glm/gtc/random.hpp>
 #include <spdlog/async.h>
@@ -35,6 +37,16 @@ namespace Enflopio
 
         std::set_terminate([]
         {
+            if (auto eptr = std::current_exception())
+            {
+                try {
+                    std::rethrow_exception(eptr);
+                }
+                catch (const std::exception& e){
+                    spdlog::error("{}", e.what());
+                }
+            }
+
             spdlog::get("frame")->flush();
             spdlog::get("frame")->dump_backtrace();
             spdlog::get("network")->flush();
